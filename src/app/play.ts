@@ -21,7 +21,7 @@ export const playGame = async (
 
   await play(game, {
     maxTurns,
-    onFinish(game, stable, turn) {
+    onFinish(game, stable, turn, cycle) {
       if (quiet) {
         const { nextFrame } = renderFrames(game);
 
@@ -35,6 +35,34 @@ export const playGame = async (
 
       if (stable) {
         console.info(`game is stable after ${turn} turns`);
+      } else if (cycle) {
+        console.info(
+          `game entered cycle of length ${cycle.length} at turn ${turn - cycle.length * 2}`,
+        );
+
+        cycle.forEach((game, index) => {
+          const { nextFrame, betweenFrame } = renderFrames(
+            game,
+            index > 0 ? cycle[index - 1] : undefined,
+          );
+          printFrame(betweenFrame ?? nextFrame, {
+            clearScreen: false,
+            screenHeight,
+            header: `turn ${index + 1} of cycle`,
+            delayMs: 0,
+          });
+        });
+
+        const { betweenFrame } = renderFrames(
+          cycle[0],
+          cycle[cycle.length - 1],
+        );
+        printFrame(betweenFrame, {
+          clearScreen: false,
+          screenHeight,
+          header: `cycle restarts`,
+          delayMs: 0,
+        });
       } else {
         console.info(`game completed after max (${turn}) turns`);
       }

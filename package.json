@@ -8,7 +8,7 @@
     "test:watch": "jest --watch",
     "lint": "eslint . && prettier --check .",
     "format": "prettier . --write",
-    "start": "ts-node src/app/main",
+    "play": "ts-node src/app/main play",
     "prepare": "husky"
   },
   "keywords": [],

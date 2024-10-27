@@ -4,7 +4,7 @@ import { isDeepEqual } from "remeda";
 type PlayParams = {
   maxTurns: number;
   onTurn: (game: Game, turn: number, prevTurn?: Game) => Promise<void>;
-  onFinish: (game: Game, stable: boolean, turn: number) => void;
+  onFinish: (game: Game, stable: boolean, turn: number, cycle?: Game[]) => void;
 };
 
 export const play = async (
@@ -25,10 +25,36 @@ export const play = async (
     return;
   }
 
+  const cycle = findCycle(history);
+
+  if (cycle) {
+    onFinish(game, false, history.length, cycle);
+    return;
+  }
+
   await onTurn(game, history.length + 1, prevTurn);
 
   play(game.nextGeneration(), { maxTurns, onTurn, onFinish }, [
     ...history,
     game,
   ]);
+};
+
+const findCycle = (history: Game[], size = 2) => {
+  // we need space for at least two cycles
+  if (size > history.length / 2) {
+    return null;
+  }
+
+  const cycle1 = history.slice(history.length - size, history.length);
+  const cycle2 = history.slice(
+    history.length - size * 2,
+    history.length - size,
+  );
+
+  if (isDeepEqual(cycle1, cycle2)) {
+    return cycle1;
+  }
+
+  return findCycle(history, size + 1);
 };

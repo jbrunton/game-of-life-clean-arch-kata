@@ -6,7 +6,16 @@ type FramesResult = {
   betweenFrame?: string;
 };
 
-export const renderFrames = (game: Game, prevTurn?: Game): FramesResult => {
+export function renderFrames(game: Game): { nextFrame: string };
+export function renderFrames(
+  game: Game,
+  prevTurn: Game,
+): { nextFrame: string; betweenFrame: string };
+export function renderFrames(
+  game: Game,
+  prevTurn?: Game,
+): { nextFrame: string; betweenFrame?: string };
+export function renderFrames(game: Game, prevTurn?: Game): FramesResult {
   const nextFrame = times(game.height, (y) =>
     times(game.width, (x) => (game.isLive(x, y) ? "●" : " ")).join(" "),
   ).join("\n");
@@ -22,4 +31,4 @@ export const renderFrames = (game: Game, prevTurn?: Game): FramesResult => {
     : undefined;
 
   return { nextFrame, betweenFrame };
-};
+}
