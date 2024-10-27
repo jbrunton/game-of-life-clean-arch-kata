@@ -1,7 +1,7 @@
 import { number } from "@inquirer/prompts";
 import { Game } from "entities/game";
 import { play } from "usecases/play";
-import { renderTurn } from "usecases/render";
+import { renderFrames } from "usecases/render";
 
 const main = async () => {
   const width = await number({
@@ -33,14 +33,26 @@ const main = async () => {
 
   process.stdout.write("\u001Bc");
 
+  const delayMs = 500;
+
   await play(game, {
     maxTurns: 10,
-    delayMs: 500,
-    onTurn: (game, prevTurn) => {
+    delayMs,
+    onTurn: async (game, prevTurn) => {
+      const { nextFrame, betweenFrame } = renderFrames(game, prevTurn);
+
       if (prevTurn) {
         process.stdout.moveCursor(0, -game.height);
       }
-      console.info(renderTurn(game));
+
+      if (betweenFrame) {
+        console.info(betweenFrame);
+        await delay(delayMs);
+        process.stdout.moveCursor(0, -game.height);
+      }
+
+      console.info(nextFrame);
+      await delay(delayMs);
     },
   });
 
@@ -52,3 +64,6 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+
+const delay = (delayMs: number) =>
+  new Promise((resolve) => setTimeout(resolve, delayMs));
