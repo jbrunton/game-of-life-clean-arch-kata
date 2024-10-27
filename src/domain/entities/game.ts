@@ -1,4 +1,4 @@
-import { flat, isNonNullish, times } from "remeda";
+import { flat, isNonNullish, sortBy, times } from "remeda";
 import seedrandom from "seedrandom";
 
 export type Cell = {
@@ -17,14 +17,18 @@ type SeedParams = {
 
 export class Game {
   readonly gridMap: Map<string, Cell>;
+  readonly liveCells: Cell[];
 
   constructor(
     readonly width: number,
     readonly height: number,
-    readonly liveCells: Cell[],
+    liveCells: Cell[],
   ) {
+    // consistently sort cells for equality comparison purposes
+    this.liveCells = sortBy(liveCells, (cell) => [cell.x, cell.y]);
+
     this.gridMap = new Map(
-      liveCells.map((cell) => {
+      this.liveCells.map((cell) => {
         if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height) {
           throw new Error(`Invalid cell coordinates: ${cell.x},${cell.y}`);
         }
@@ -58,21 +62,6 @@ export class Game {
         this.isLive(x + 1, y + 1),
       ].filter((live) => live === true).length;
     };
-
-    // const liveCells = flat(
-    //   times(this.height, (y) =>
-    //     flat(
-    //       times(this.width, (x) => {
-    //         const neighborCount = countNeighbors(x, y);
-    //         if (this.isLive(x, y)) {
-    //           return [2, 3].includes(neighborCount) ? { x, y } : null;
-    //         } else {
-    //           return neighborCount === 3 ? { x, y } : null;
-    //         }
-    //       }).filter(isNonNullish),
-    //     ),
-    //   ),
-    // );
 
     const liveCells = this.mapCells(({ x, y }, isLive) => {
       const neighborCount = countNeighbors(x, y);

@@ -1,5 +1,5 @@
 import { Game } from "entities/game";
-import { play } from "usecases/play";
+import { play, PlayResult } from "usecases/play";
 import { renderFrames } from "usecases/render";
 import { printFrame } from "./output";
 
@@ -17,12 +17,13 @@ export const playGame = async (game: Game, opts: GameOpts) => {
     process.stdout.write("\u001Bc");
   }
 
-  await play(game, {
+  const result = await play(game, {
     maxTurns,
     loop,
-    onFinish: onFinish(opts),
     onTurn: onTurn(opts),
   });
+
+  onFinish(opts)(result);
 };
 
 const onTurn =
@@ -55,7 +56,7 @@ const onTurn =
 
 const onFinish =
   ({ quiet }: GameOpts) =>
-  (game: Game, stable: boolean, turn: number, cycle?: Game[]) => {
+  ({ game, stable, turn, cycle }: PlayResult) => {
     const screenHeight = game.height + 1;
 
     if (quiet) {
