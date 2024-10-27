@@ -18,12 +18,14 @@
   "dependencies": {
     "@inquirer/prompts": "^7.0.1",
     "remeda": "^2.16.0",
+    "seedrandom": "^3.0.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/node": "^22.8.1",
+    "@types/seedrandom": "^3.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^8.11.0",
     "eslint": "^8.0.1",
