@@ -1,5 +1,4 @@
 import { Game } from "entities/game";
-import { times } from "remeda";
 
 type FramesResult = {
   nextFrame: string;
@@ -16,18 +15,18 @@ export function renderFrames(
   prevTurn?: Game,
 ): { nextFrame: string; betweenFrame?: string };
 export function renderFrames(game: Game, prevTurn?: Game): FramesResult {
-  const nextFrame = times(game.height, (y) =>
-    times(game.width, (x) => (game.isLive(x, y) ? "●" : " ")).join(" "),
-  ).join("\n");
+  const join = (cells: string[][]) =>
+    cells.map((row) => row.join(" ")).join("\n");
+
+  const nextFrame = join(game.mapCells((_, isLive) => (isLive ? "●" : " ")));
 
   const betweenFrame = prevTurn
-    ? times(game.height, (y) =>
-        times(game.width, (x) => {
-          const isLive = game.isLive(x, y);
+    ? join(
+        game.mapCells(({ x, y }, isLive) => {
           const died = !isLive && prevTurn.isLive(x, y);
           return isLive ? "●" : died ? "◌" : " ";
-        }).join(" "),
-      ).join("\n")
+        }),
+      )
     : undefined;
 
   return { nextFrame, betweenFrame };

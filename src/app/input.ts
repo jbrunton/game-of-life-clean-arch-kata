@@ -38,10 +38,10 @@ export const getInitialBoard = async () => {
         game.width,
         game.height,
         game.isLive(cursorX, cursorY)
-          ? game.cells.filter(
+          ? game.liveCells.filter(
               (cell) => cell.x !== cursorX || cell.y !== cursorY,
             )
-          : [...game.cells, { x: cursorX, y: cursorY }],
+          : [...game.liveCells, { x: cursorX, y: cursorY }],
       );
     } else if (keyName === "left") {
       cursorX = Math.max(0, cursorX - 1);

@@ -21,10 +21,10 @@ export class Game {
   constructor(
     readonly width: number,
     readonly height: number,
-    readonly cells: Cell[],
+    readonly liveCells: Cell[],
   ) {
     this.gridMap = new Map(
-      cells.map((cell) => {
+      liveCells.map((cell) => {
         if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height) {
           throw new Error(`Invalid cell coordinates: ${cell.x},${cell.y}`);
         }
@@ -35,6 +35,12 @@ export class Game {
 
   isLive(x: number, y: number): boolean {
     return this.gridMap.get(cellKey({ x, y })) !== undefined;
+  }
+
+  mapCells<T>(f: (cell: Cell, isLive: boolean) => T): T[][] {
+    return times(this.height, (y) =>
+      times(this.width, (x) => f({ x, y }, this.isLive(x, y))),
+    );
   }
 
   nextGeneration(): Game {
@@ -53,22 +59,35 @@ export class Game {
       ].filter((live) => live === true).length;
     };
 
-    const cells = flat(
-      times(this.height, (y) =>
-        flat(
-          times(this.width, (x) => {
-            const neighborCount = countNeighbors(x, y);
-            if (this.isLive(x, y)) {
-              return [2, 3].includes(neighborCount) ? { x, y } : null;
-            } else {
-              return neighborCount === 3 ? { x, y } : null;
-            }
-          }).filter(isNonNullish),
-        ),
-      ),
-    );
+    // const liveCells = flat(
+    //   times(this.height, (y) =>
+    //     flat(
+    //       times(this.width, (x) => {
+    //         const neighborCount = countNeighbors(x, y);
+    //         if (this.isLive(x, y)) {
+    //           return [2, 3].includes(neighborCount) ? { x, y } : null;
+    //         } else {
+    //           return neighborCount === 3 ? { x, y } : null;
+    //         }
+    //       }).filter(isNonNullish),
+    //     ),
+    //   ),
+    // );
 
-    return new Game(this.width, this.height, cells);
+    const liveCells = this.mapCells(({ x, y }, isLive) => {
+      const neighborCount = countNeighbors(x, y);
+      if (isLive) {
+        return [2, 3].includes(neighborCount) ? { x, y } : null;
+      } else {
+        return neighborCount === 3 ? { x, y } : null;
+      }
+    });
+
+    return new Game(
+      this.width,
+      this.height,
+      flat(liveCells).filter(isNonNullish),
+    );
   }
 
   static seed({ width, height, seed, cellCount }: SeedParams): Game {
