@@ -39,7 +39,13 @@ const main = async () => {
 
   await play(game, {
     maxTurns: 10,
-    delayMs,
+    onFinish(stable, turn) {
+      if (stable) {
+        console.info(`game is stable after ${turn} turns`);
+      } else {
+        console.info(`game completed after max (${turn}) turns`);
+      }
+    },
     onTurn: async (game, turn, prevTurn) => {
       const { nextFrame, betweenFrame } = renderFrames(game, prevTurn);
 
