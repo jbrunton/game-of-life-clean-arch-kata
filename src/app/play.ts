@@ -9,86 +9,99 @@ type GameOpts = {
   quiet: boolean;
 };
 
-export const playGame = async (
-  game: Game,
-  { maxTurns, delayMs, quiet }: GameOpts,
-) => {
+export const playGame = async (game: Game, opts: GameOpts) => {
+  const { quiet, maxTurns } = opts;
+
   if (!quiet) {
     process.stdout.write("\u001Bc");
   }
 
-  const screenHeight = game.height + 1;
-
   await play(game, {
     maxTurns,
-    onFinish(game, stable, turn, cycle) {
-      if (quiet) {
-        const { nextFrame } = renderFrames(game);
+    onFinish: onFinish(opts),
+    onTurn: onTurn(opts),
+  });
+};
 
-        printFrame(nextFrame, {
-          clearScreen: false,
-          screenHeight,
-          header: `turn: ${turn}`,
-          delayMs: 0,
-        });
-      }
+const onTurn =
+  ({ quiet, delayMs }: GameOpts) =>
+  async (game: Game, turn: number, prevTurn?: Game) => {
+    if (quiet) {
+      return;
+    }
 
-      if (stable) {
-        console.info(`game is stable after ${turn} turns`);
-      } else if (cycle) {
-        console.info(
-          `game entered cycle of length ${cycle.length} at turn ${turn - cycle.length * 2}`,
-        );
+    const screenHeight = game.height + 1;
 
-        cycle.forEach((game, index) => {
-          const { nextFrame, betweenFrame } = renderFrames(
-            game,
-            index > 0 ? cycle[index - 1] : undefined,
-          );
-          printFrame(betweenFrame ?? nextFrame, {
-            clearScreen: false,
-            screenHeight,
-            header: `turn ${index + 1} of cycle`,
-            delayMs: 0,
-          });
-        });
+    const { nextFrame, betweenFrame } = renderFrames(game, prevTurn);
 
-        const { betweenFrame } = renderFrames(
-          cycle[0],
-          cycle[cycle.length - 1],
-        );
-        printFrame(betweenFrame, {
-          clearScreen: false,
-          screenHeight,
-          header: `cycle restarts`,
-          delayMs: 0,
-        });
-      } else {
-        console.info(`game completed after max (${turn}) turns`);
-      }
-    },
-    onTurn: async (game, turn, prevTurn) => {
-      if (quiet) {
-        return;
-      }
-
-      const { nextFrame, betweenFrame } = renderFrames(game, prevTurn);
-
-      if (betweenFrame) {
-        await printFrame(betweenFrame, {
-          clearScreen: prevTurn !== undefined,
-          screenHeight,
-          header: `turn ${turn}`,
-          delayMs,
-        });
-      }
-
-      await printFrame(nextFrame, {
-        clearScreen: true,
+    if (betweenFrame) {
+      await printFrame(betweenFrame, {
+        clearScreen: prevTurn !== undefined,
         screenHeight,
         header: `turn ${turn}`,
         delayMs,
       });
-    },
+    }
+
+    await printFrame(nextFrame, {
+      clearScreen: true,
+      screenHeight,
+      header: `turn ${turn}`,
+      delayMs,
+    });
+  };
+
+const onFinish =
+  ({ quiet }: GameOpts) =>
+  (game: Game, stable: boolean, turn: number, cycle?: Game[]) => {
+    const screenHeight = game.height + 1;
+
+    if (quiet) {
+      // Print the last frame in quiet mode, because we didn't already print it.
+      const { nextFrame } = renderFrames(game);
+
+      printFrame(nextFrame, {
+        clearScreen: false,
+        screenHeight,
+        header: `turn: ${turn}`,
+        delayMs: 0,
+      });
+    }
+
+    if (stable) {
+      console.info(`game is stable after ${turn} turns`);
+    } else if (cycle) {
+      console.info(
+        `game entered cycle of length ${cycle.length} at turn ${turn - cycle.length * 2}`,
+      );
+
+      printCycle(cycle, screenHeight);
+    } else {
+      console.info(
+        `game ended after max (${turn}) turns without stabilising or entering a cycle`,
+      );
+    }
+  };
+
+const printCycle = (cycle: Game[], screenHeight: number) => {
+  cycle.forEach((game, index) => {
+    const { nextFrame, betweenFrame } = renderFrames(
+      game,
+      index > 0 ? cycle[index - 1] : undefined,
+    );
+    printFrame(betweenFrame ?? nextFrame, {
+      clearScreen: false,
+      screenHeight,
+      header: `turn ${index + 1} of cycle`,
+      delayMs: 0,
+    });
+  });
+
+  const { betweenFrame } = renderFrames(cycle[0], cycle[cycle.length - 1]);
+  printFrame(betweenFrame, {
+    clearScreen: false,
+    screenHeight,
+    header: `cycle restarts`,
+    delayMs: 0,
   });
 };
