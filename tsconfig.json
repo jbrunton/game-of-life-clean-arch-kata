@@ -35,7 +35,8 @@
     "paths": {
       "app/*": ["src/app/*"],
       "entities/*": ["src/domain/entities/*"],
-      "usecases/*": ["src/domain/usecases/*"]
+      "usecases/*": ["src/domain/usecases/*"],
+      "fixtures/*": ["src/fixtures/*"]
     },
 
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
