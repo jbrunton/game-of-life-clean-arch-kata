@@ -2,6 +2,7 @@ import { Game } from "entities/game";
 import { printFrame } from "./output";
 import readline from "readline";
 import { renderCells } from "usecases/render";
+import { times } from "remeda";
 
 export const getInitialBoard = async (width: number, height: number) => {
   let game = new Game(width, height, []);
@@ -18,7 +19,7 @@ export const getInitialBoard = async (width: number, height: number) => {
     game = new Game(game.width, game.height, liveCells);
   };
 
-  const screenHeight = game.height + 1;
+  const screenHeight = game.height + 2;
 
   const renderFrame = () => {
     return renderCells(game, ({ x, y }, isLive) => {
@@ -28,14 +29,19 @@ export const getInitialBoard = async (width: number, height: number) => {
   };
 
   process.stdout.write("\u001Bc");
-  const frame = renderFrame();
 
-  printFrame(frame, {
-    clearScreen: true,
-    screenHeight,
-    header: `Select the initial cells. Navigate with arrows. Space to flip state. Enter to accept. (${cursorX},${cursorY})`,
-    delayMs: 0,
-  });
+  const printSelection = () => {
+    const frame = renderFrame();
+    printFrame(frame, {
+      clearScreen: true,
+      screenHeight,
+      header: `Select initial cells. Navigate with arrows. Space to flip state. Enter to accept.`,
+      delayMs: 0,
+    });
+    console.log(times(width, () => "=").join(" "));
+  };
+
+  printSelection();
 
   await awaitInputs((keyName) => {
     if (keyName === "space") {
@@ -50,13 +56,7 @@ export const getInitialBoard = async (width: number, height: number) => {
       cursorY = Math.min(game.height - 1, cursorY + 1);
     }
 
-    const frame = renderFrame();
-    printFrame(frame, {
-      clearScreen: true,
-      screenHeight,
-      header: `Select the initial cells. Navigate with arrows. Space to flip state. Enter to accept.`,
-      delayMs: 0,
-    });
+    printSelection();
   });
 
   return game;
