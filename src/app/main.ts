@@ -21,6 +21,18 @@ program
     const delayMs = parseInt(opts.delay);
     const quiet = opts.quiet ?? false;
 
+    if (
+      width * 2 > process.stdout.columns ||
+      height + 1 > process.stdout.rows
+    ) {
+      console.error(
+        `Console is too small (${process.stdout.columns / 2} x ${
+          process.stdout.rows
+        }) for specified dimensions (${width} x ${height}). Note: grid cells occupy two terminal columns.`,
+      );
+      process.exit(1);
+    }
+
     const game = Game.seed({
       width,
       height,
