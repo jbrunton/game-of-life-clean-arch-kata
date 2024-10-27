@@ -1,4 +1,4 @@
-import { times } from "remeda";
+import { flat, isNonNullish, times } from "remeda";
 import seedrandom from "seedrandom";
 
 export type Cell = {
@@ -35,6 +35,40 @@ export class Game {
 
   isLive(x: number, y: number): boolean {
     return this.gridMap.get(cellKey({ x, y })) !== undefined;
+  }
+
+  nextGeneration(): Game {
+    const countNeighbors = (x: number, y: number) => {
+      return [
+        this.isLive(x - 1, y - 1),
+        this.isLive(x, y - 1),
+        this.isLive(x + 1, y - 1),
+
+        this.isLive(x - 1, y),
+        this.isLive(x + 1, y),
+
+        this.isLive(x - 1, y + 1),
+        this.isLive(x, y + 1),
+        this.isLive(x + 1, y + 1),
+      ].filter((live) => live === true).length;
+    };
+
+    const cells = flat(
+      times(this.height, (y) =>
+        flat(
+          times(this.width, (x) => {
+            const neighborCount = countNeighbors(x, y);
+            if (this.isLive(x, y)) {
+              return [2, 3].includes(neighborCount) ? { x, y } : null;
+            } else {
+              return neighborCount === 3 ? { x, y } : null;
+            }
+          }).filter(isNonNullish),
+        ),
+      ),
+    );
+
+    return new Game(this.width, this.height, cells);
   }
 
   static seed({ width, height, seed, cellCount }: SeedParams): Game {
