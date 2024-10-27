@@ -8,8 +8,8 @@ program
   .command("play")
   .option("-w, --width <number>", "board width", "10")
   .option("-h, --height <number>", "board height", "10")
-  .option("-s, --seed <number>", "seed value", "0")
-  .option("-c, --cell-count <number>", "number of live cells", "20")
+  .option("-s, --seed <number>", "seed value")
+  .option("-c, --cell-count <number>", "number of live cells")
   .option("-t, --max-turns <number>", "max turns to play", "50")
   .option("-d, --delay <number>", "delay per rendered frame, ms", "10")
   .option("-q, --quiet", "skips rendering the output")
@@ -17,12 +17,6 @@ program
   .action(async (opts) => {
     const width = parseInt(opts.width);
     const height = parseInt(opts.height);
-    const seed = parseInt(opts.seed);
-    const cellCount = parseInt(opts.cellCount);
-    const maxTurns = parseInt(opts.maxTurns);
-    const delayMs = parseInt(opts.delay);
-    const quiet = opts.quiet ?? false;
-    const loop = opts.loop ?? false;
 
     if (
       width * 2 > process.stdout.columns ||
@@ -36,14 +30,20 @@ program
       process.exit(1);
     }
 
-    const game = await getInitialBoard();
+    const maxTurns = parseInt(opts.maxTurns);
+    const delayMs = parseInt(opts.delay);
+    const quiet = opts.quiet ?? false;
+    const loop = opts.loop ?? false;
 
-    // const game = Game.seed({
-    //   width,
-    //   height,
-    //   seed,
-    //   cellCount,
-    // });
+    const game =
+      opts.seed && opts.cellCount
+        ? Game.seed({
+            width,
+            height,
+            seed: parseInt(opts.seed),
+            cellCount: parseInt(opts.cellCount),
+          })
+        : await getInitialBoard(width, height);
 
     await playGame(game, { maxTurns, delayMs, quiet, loop });
   });
