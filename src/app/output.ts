@@ -19,5 +19,5 @@ export const printFrame = async (
   await delay(delayMs);
 };
 
-const delay = (delayMs: number) =>
+export const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));

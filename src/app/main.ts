@@ -1,6 +1,7 @@
 import { Game } from "entities/game";
 import { playGame } from "./play";
 import { program } from "@commander-js/extra-typings";
+import { getInitialBoard } from "./input";
 
 program
   .name("game-of-life")
@@ -12,6 +13,7 @@ program
   .option("-t, --max-turns <number>", "max turns to play", "50")
   .option("-d, --delay <number>", "delay per rendered frame, ms", "10")
   .option("-q, --quiet", "skips rendering the output")
+  .option("-l, --loop", "don't exit")
   .action(async (opts) => {
     const width = parseInt(opts.width);
     const height = parseInt(opts.height);
@@ -20,6 +22,7 @@ program
     const maxTurns = parseInt(opts.maxTurns);
     const delayMs = parseInt(opts.delay);
     const quiet = opts.quiet ?? false;
+    const loop = opts.loop ?? false;
 
     if (
       width * 2 > process.stdout.columns ||
@@ -33,14 +36,16 @@ program
       process.exit(1);
     }
 
-    const game = Game.seed({
-      width,
-      height,
-      seed,
-      cellCount,
-    });
+    const game = await getInitialBoard();
 
-    await playGame(game, { maxTurns, delayMs, quiet });
+    // const game = Game.seed({
+    //   width,
+    //   height,
+    //   seed,
+    //   cellCount,
+    // });
+
+    await playGame(game, { maxTurns, delayMs, quiet, loop });
   });
 
 program.parseAsync().catch((e) => {

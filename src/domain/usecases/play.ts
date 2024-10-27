@@ -3,13 +3,14 @@ import { isDeepEqual } from "remeda";
 
 type PlayParams = {
   maxTurns: number;
+  loop: boolean;
   onTurn: (game: Game, turn: number, prevTurn?: Game) => Promise<void>;
   onFinish: (game: Game, stable: boolean, turn: number, cycle?: Game[]) => void;
 };
 
 export const play = async (
   game: Game,
-  { maxTurns, onTurn, onFinish }: PlayParams,
+  { maxTurns, onTurn, onFinish, loop }: PlayParams,
   history: Game[] = [],
 ) => {
   if (history.length === maxTurns) {
@@ -25,16 +26,18 @@ export const play = async (
     return;
   }
 
-  const cycle = findCycle(history);
+  if (!loop) {
+    const cycle = findCycle(history);
 
-  if (cycle) {
-    onFinish(game, false, history.length, cycle);
-    return;
+    if (cycle) {
+      onFinish(game, false, history.length, cycle);
+      return;
+    }
   }
 
   await onTurn(game, history.length + 1, prevTurn);
 
-  play(game.nextGeneration(), { maxTurns, onTurn, onFinish }, [
+  play(game.nextGeneration(), { maxTurns, loop, onTurn, onFinish }, [
     ...history,
     game,
   ]);

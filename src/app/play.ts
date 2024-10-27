@@ -7,10 +7,11 @@ type GameOpts = {
   maxTurns: number;
   delayMs: number;
   quiet: boolean;
+  loop: boolean;
 };
 
 export const playGame = async (game: Game, opts: GameOpts) => {
-  const { quiet, maxTurns } = opts;
+  const { quiet, loop, maxTurns } = opts;
 
   if (!quiet) {
     process.stdout.write("\u001Bc");
@@ -18,6 +19,7 @@ export const playGame = async (game: Game, opts: GameOpts) => {
 
   await play(game, {
     maxTurns,
+    loop,
     onFinish: onFinish(opts),
     onTurn: onTurn(opts),
   });
