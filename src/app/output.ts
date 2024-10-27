@@ -2,11 +2,12 @@ type PrintFrameParams = {
   clearScreen: boolean;
   screenHeight: number;
   header: string;
+  delayMs: number;
 };
 
-export const printFrame = (
+export const printFrame = async (
   frame: string,
-  { clearScreen, screenHeight, header }: PrintFrameParams,
+  { clearScreen, screenHeight, header, delayMs }: PrintFrameParams,
 ) => {
   if (clearScreen) {
     process.stdout.moveCursor(0, -screenHeight);
@@ -14,4 +15,9 @@ export const printFrame = (
 
   console.info(header);
   console.info(frame);
+
+  await delay(delayMs);
 };
+
+const delay = (delayMs: number) =>
+  new Promise((resolve) => setTimeout(resolve, delayMs));

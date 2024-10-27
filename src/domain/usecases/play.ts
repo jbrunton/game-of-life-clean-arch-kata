@@ -4,7 +4,7 @@ import { isDeepEqual } from "remeda";
 type PlayParams = {
   maxTurns: number;
   onTurn: (game: Game, turn: number, prevTurn?: Game) => Promise<void>;
-  onFinish: (stable: boolean, turn: number) => void;
+  onFinish: (game: Game, stable: boolean, turn: number) => void;
 };
 
 export const play = async (
@@ -13,7 +13,7 @@ export const play = async (
   history: Game[] = [],
 ) => {
   if (history.length === maxTurns) {
-    onFinish(false, history.length);
+    onFinish(game, false, history.length);
     return;
   }
 
@@ -21,7 +21,7 @@ export const play = async (
   const stable = isDeepEqual(game, prevTurn);
 
   if (stable) {
-    onFinish(true, history.length);
+    onFinish(game, true, history.length);
     return;
   }
 
