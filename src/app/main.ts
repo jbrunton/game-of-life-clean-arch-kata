@@ -1,11 +1,47 @@
 import { Game } from "entities/game";
 import { playGame } from "./play";
-import { program } from "@commander-js/extra-typings";
 import { getInitialBoard } from "./input";
 import { parseNumber } from "./commands/parsers";
+import { Command } from "commander";
+import { getSavedGame, init, listGames, saveGame } from "./data/save";
+
+const program = new Command("game-of-life");
 
 program
-  .name("game-of-life")
+  .command("save")
+  .option("-w, --width <number>", "board width", parseNumber, 10)
+  .option("-h, --height <number>", "board height", parseNumber, 10)
+  .option("-s, --seed <number>", "seed value")
+  .option("-c, --cell-count <number>", "number of live cells", parseNumber)
+  .requiredOption("-n, --name <string>", "saved game name")
+  .action(async (opts) => {
+    await init();
+
+    const width = opts.width;
+    const height = opts.height;
+
+    const game =
+      opts.seed && opts.cellCount
+        ? Game.seed({
+            width,
+            height,
+            seed: opts.seed,
+            cellCount: opts.cellCount,
+          })
+        : await getInitialBoard(width, height);
+    await saveGame(opts.name, game);
+    console.info(opts);
+  });
+
+program.command("list").action(async () => {
+  const games = await listGames();
+  console.table(games);
+  // games.forEach((game) => {
+  //   console.info(game.name);
+  // });
+});
+
+program
   .command("play")
   .option("-w, --width <number>", "board width", parseNumber, 10)
   .option("-h, --height <number>", "board height", parseNumber, 10)
@@ -21,6 +57,7 @@ program
   .option("-q, --quiet", "skips rendering the output")
   .option("-a, --print-all", "print all turns (disable animation)")
   .option("-l, --loop", "don't exit")
+  .option("-n, --name <string>", "play a saved game")
   .action(async (opts) => {
     const width = opts.width;
     const height = opts.height;
@@ -42,9 +79,11 @@ program
     const printAll = opts.printAll ?? false;
     const maxTurns = opts.maxTurns;
     const delayMs = opts.delay;
+    const name = opts.name;
 
-    const game =
-      opts.seed && opts.cellCount
+    const game = opts.name
+      ? await getSavedGame(name)
+      : opts.seed && opts.cellCount
         ? Game.seed({
             width,
             height,

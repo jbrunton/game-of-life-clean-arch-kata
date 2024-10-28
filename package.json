@@ -9,7 +9,7 @@
     "lint": "eslint . && prettier --check .",
     "build": "tsc --noEmit",
     "format": "prettier . --write",
-    "play": "ts-node src/app/main play",
+    "game": "ts-node src/app/main",
     "prepare": "husky"
   },
   "keywords": [],
@@ -21,6 +21,7 @@
     "commander": "^12.1.0",
     "remeda": "^2.16.0",
     "seedrandom": "^3.0.5",
+    "sqlite3": "^5.1.7",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0"
   },
@@ -29,6 +30,7 @@
     "@jest/globals": "^29.7.0",
     "@types/node": "^22.8.1",
     "@types/seedrandom": "^3.0.8",
+    "@types/sqlite3": "^3.1.11",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^8.11.0",
     "eslint": "^8.0.1",
