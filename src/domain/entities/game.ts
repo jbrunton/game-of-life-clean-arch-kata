@@ -41,9 +41,9 @@ export class Game {
     return this.gridMap.get(cellKey({ x, y })) !== undefined;
   }
 
-  mapCells<T>(f: (cell: Cell, isLive: boolean) => T): T[][] {
+  mapCells<T>(f: (isLive: boolean, cell: Cell) => T): T[][] {
     return times(this.height, (y) =>
-      times(this.width, (x) => f({ x, y }, this.isLive(x, y))),
+      times(this.width, (x) => f(this.isLive(x, y), { x, y })),
     );
   }
 
@@ -63,7 +63,7 @@ export class Game {
       ].filter((live) => live === true).length;
     };
 
-    const liveCells = this.mapCells(({ x, y }, isLive) => {
+    const liveCells = this.mapCells((isLive, { x, y }) => {
       const neighborCount = countNeighbors(x, y);
       if (isLive) {
         return [2, 3].includes(neighborCount) ? { x, y } : null;

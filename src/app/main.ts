@@ -13,6 +13,7 @@ program
   .option("-t, --max-turns <number>", "max turns to play", "50")
   .option("-d, --delay <number>", "delay per rendered frame, ms", "10")
   .option("-q, --quiet", "skips rendering the output")
+  .option("-a, --print-all", "print all turns (disable animation)")
   .option("-l, --loop", "don't exit")
   .action(async (opts) => {
     const width = parseInt(opts.width);
@@ -34,6 +35,7 @@ program
     const delayMs = parseInt(opts.delay);
     const quiet = opts.quiet ?? false;
     const loop = opts.loop ?? false;
+    const printAll = opts.printAll ?? false;
 
     const game =
       opts.seed && opts.cellCount
@@ -45,7 +47,7 @@ program
           })
         : await getInitialBoard(width, height);
 
-    await playGame(game, { maxTurns, delayMs, quiet, loop });
+    await playGame(game, { maxTurns, delayMs, quiet, loop, printAll });
   });
 
 program.parseAsync().catch((e) => {
