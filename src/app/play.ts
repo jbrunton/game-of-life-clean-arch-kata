@@ -8,6 +8,7 @@ type GameOpts = {
   delayMs: number;
   quiet: boolean;
   loop: boolean;
+  printAll: boolean;
 };
 
 export const playGame = async (game: Game, opts: GameOpts) => {
@@ -27,7 +28,7 @@ export const playGame = async (game: Game, opts: GameOpts) => {
 };
 
 const onTurn =
-  ({ quiet, delayMs }: GameOpts) =>
+  ({ quiet, delayMs, printAll }: GameOpts) =>
   async (game: Game, turn: number, prevTurn?: Game) => {
     if (quiet) {
       return;
@@ -37,7 +38,7 @@ const onTurn =
 
     const { nextFrame, betweenFrame } = renderFrames(game, prevTurn);
 
-    if (betweenFrame) {
+    if (betweenFrame && !printAll) {
       await printFrame(betweenFrame, {
         clearScreen: prevTurn !== undefined,
         screenHeight,
@@ -47,7 +48,7 @@ const onTurn =
     }
 
     await printFrame(nextFrame, {
-      clearScreen: true,
+      clearScreen: !printAll,
       screenHeight,
       header: `turn ${turn}`,
       delayMs,
