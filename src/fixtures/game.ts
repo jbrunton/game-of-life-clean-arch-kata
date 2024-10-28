@@ -1,5 +1,5 @@
 import { Game } from "entities/game";
-import { times } from "remeda";
+import { flat, isNonNullish, times } from "remeda";
 
 export const asString = (game: Game): string => {
   return times(game.height, (y) =>
@@ -15,4 +15,20 @@ export const dedent = ([str]: TemplateStringsArray) => {
     .map((line) => line.trimStart())
     .filter((s) => s.length)
     .join("\n");
+};
+
+export const fromString = (game: string): Game => {
+  const rows = game
+    .split("\n")
+    .map((s) => s.trim())
+    .filter((s) => s.length);
+  const height = rows.length;
+  const width = rows[0].length;
+
+  const cells = rows.map((row, y) =>
+    [...row].map((val, x) => (val === "X" ? { x, y } : null)),
+  );
+  const liveCells = flat(cells).filter(isNonNullish);
+
+  return new Game(width, height, liveCells);
 };

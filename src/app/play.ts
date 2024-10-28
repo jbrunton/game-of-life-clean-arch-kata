@@ -1,5 +1,5 @@
 import { Game } from "entities/game";
-import { play } from "usecases/play";
+import { play, PlayResult } from "usecases/play";
 import { renderFrames } from "usecases/render";
 import { printFrame } from "./output";
 
@@ -7,20 +7,23 @@ type GameOpts = {
   maxTurns: number;
   delayMs: number;
   quiet: boolean;
+  loop: boolean;
 };
 
 export const playGame = async (game: Game, opts: GameOpts) => {
-  const { quiet, maxTurns } = opts;
+  const { quiet, loop, maxTurns } = opts;
 
   if (!quiet) {
     process.stdout.write("\u001Bc");
   }
 
-  await play(game, {
+  const result = await play(game, {
     maxTurns,
-    onFinish: onFinish(opts),
+    loop,
     onTurn: onTurn(opts),
   });
+
+  onFinish(opts)(result);
 };
 
 const onTurn =
@@ -53,7 +56,7 @@ const onTurn =
 
 const onFinish =
   ({ quiet }: GameOpts) =>
-  (game: Game, stable: boolean, turn: number, cycle?: Game[]) => {
+  ({ game, settled, turn, cycle }: PlayResult) => {
     const screenHeight = game.height + 1;
 
     if (quiet) {
@@ -68,8 +71,8 @@ const onFinish =
       });
     }
 
-    if (stable) {
-      console.info(`game is stable after ${turn} turns`);
+    if (settled) {
+      console.info(`game settled after ${turn} turns`);
     } else if (cycle) {
       console.info(
         `game entered cycle of length ${cycle.length} at turn ${turn - cycle.length * 2}`,
@@ -78,7 +81,7 @@ const onFinish =
       printCycle(cycle, screenHeight);
     } else {
       console.info(
-        `game ended after max (${turn}) turns without stabilising or entering a cycle`,
+        `game ended after max (${turn}) turns without settling or entering a cycle`,
       );
     }
   };

@@ -1,4 +1,4 @@
-import { flat, isNonNullish, times } from "remeda";
+import { flat, isNonNullish, sortBy, times } from "remeda";
 import seedrandom from "seedrandom";
 
 export type Cell = {
@@ -17,14 +17,18 @@ type SeedParams = {
 
 export class Game {
   readonly gridMap: Map<string, Cell>;
+  readonly liveCells: Cell[];
 
   constructor(
     readonly width: number,
     readonly height: number,
-    readonly cells: Cell[],
+    liveCells: Cell[],
   ) {
+    // consistently sort cells for equality comparison purposes
+    this.liveCells = sortBy(liveCells, (cell) => [cell.x, cell.y]);
+
     this.gridMap = new Map(
-      cells.map((cell) => {
+      this.liveCells.map((cell) => {
         if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height) {
           throw new Error(`Invalid cell coordinates: ${cell.x},${cell.y}`);
         }
@@ -35,6 +39,12 @@ export class Game {
 
   isLive(x: number, y: number): boolean {
     return this.gridMap.get(cellKey({ x, y })) !== undefined;
+  }
+
+  mapCells<T>(f: (cell: Cell, isLive: boolean) => T): T[][] {
+    return times(this.height, (y) =>
+      times(this.width, (x) => f({ x, y }, this.isLive(x, y))),
+    );
   }
 
   nextGeneration(): Game {
@@ -53,22 +63,20 @@ export class Game {
       ].filter((live) => live === true).length;
     };
 
-    const cells = flat(
-      times(this.height, (y) =>
-        flat(
-          times(this.width, (x) => {
-            const neighborCount = countNeighbors(x, y);
-            if (this.isLive(x, y)) {
-              return [2, 3].includes(neighborCount) ? { x, y } : null;
-            } else {
-              return neighborCount === 3 ? { x, y } : null;
-            }
-          }).filter(isNonNullish),
-        ),
-      ),
-    );
+    const liveCells = this.mapCells(({ x, y }, isLive) => {
+      const neighborCount = countNeighbors(x, y);
+      if (isLive) {
+        return [2, 3].includes(neighborCount) ? { x, y } : null;
+      } else {
+        return neighborCount === 3 ? { x, y } : null;
+      }
+    });
 
-    return new Game(this.width, this.height, cells);
+    return new Game(
+      this.width,
+      this.height,
+      flat(liveCells).filter(isNonNullish),
+    );
   }
 
   static seed({ width, height, seed, cellCount }: SeedParams): Game {
