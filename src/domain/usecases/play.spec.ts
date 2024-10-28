@@ -1,43 +1,32 @@
 import { play } from "./play";
-import { Game } from "entities/game";
 import { describe, expect, it } from "@jest/globals";
+import { fromString } from "fixtures/game";
 
-const simpleCycle = new Game(4, 4, [
-  { x: 0, y: 0 },
-  { x: 1, y: 0 },
-  { x: 1, y: 1 },
-  { x: 0, y: 1 },
+const simpleCycle = fromString(`
+  XX__
+  XX__
+  __XX
+  __XX
+`);
 
-  { x: 2, y: 2 },
-  { x: 3, y: 2 },
-  { x: 3, y: 3 },
-  { x: 2, y: 3 },
-]);
+const simpleCycleAlternate = fromString(`
+  XX__
+  X___
+  ___X
+  __XX
+`);
 
-const simpleCycleAlternate = new Game(4, 4, [
-  { x: 0, y: 0 },
-  { x: 1, y: 0 },
-  { x: 0, y: 1 },
+const simpleStabilisingGame = fromString(`
+  XX_
+  X_X
+  X__
+`);
 
-  { x: 3, y: 2 },
-  { x: 3, y: 3 },
-  { x: 2, y: 3 },
-]);
-
-const simpleStabilisingGame = new Game(4, 4, [
-  { x: 0, y: 0 },
-  { x: 0, y: 1 },
-  { x: 0, y: 2 },
-  { x: 1, y: 0 },
-  { x: 2, y: 1 },
-]);
-
-const simpleStabilisedGame = new Game(4, 4, [
-  { x: 0, y: 0 },
-  { x: 0, y: 1 },
-  { x: 1, y: 1 },
-  { x: 1, y: 0 },
-]);
+const simpleStabilisedGame = fromString(`
+  XX_
+  XX_
+  ___
+`);
 
 describe("play", () => {
   it("finishes after the specified number of turns", async () => {
