@@ -9,7 +9,7 @@ type PlayParams = {
 
 export type PlayResult = {
   game: Game;
-  stable: boolean;
+  settled: boolean;
   turn: number;
   cycle?: Game[];
 };
@@ -22,21 +22,21 @@ export const play = async (
   const turn = history.length;
 
   if (turn === maxTurns) {
-    return { game, stable: false, turn };
+    return { game, settled: false, turn };
   }
 
   const prevTurn = history[history.length - 1];
-  const stable = isDeepEqual(game, prevTurn);
+  const settled = isDeepEqual(game, prevTurn);
 
-  if (stable) {
-    return { game, stable, turn };
+  if (settled) {
+    return { game, settled, turn };
   }
 
   if (!loop) {
     const cycle = findCycle(history);
 
     if (cycle) {
-      return { game, stable: false, turn, cycle };
+      return { game, settled: false, turn, cycle };
     }
   }
 

@@ -56,7 +56,7 @@ const onTurn =
 
 const onFinish =
   ({ quiet }: GameOpts) =>
-  ({ game, stable, turn, cycle }: PlayResult) => {
+  ({ game, settled, turn, cycle }: PlayResult) => {
     const screenHeight = game.height + 1;
 
     if (quiet) {
@@ -71,8 +71,8 @@ const onFinish =
       });
     }
 
-    if (stable) {
-      console.info(`game is stable after ${turn} turns`);
+    if (settled) {
+      console.info(`game settled after ${turn} turns`);
     } else if (cycle) {
       console.info(
         `game entered cycle of length ${cycle.length} at turn ${turn - cycle.length * 2}`,
@@ -81,7 +81,7 @@ const onFinish =
       printCycle(cycle, screenHeight);
     } else {
       console.info(
-        `game ended after max (${turn}) turns without stabilising or entering a cycle`,
+        `game ended after max (${turn}) turns without settling or entering a cycle`,
       );
     }
   };

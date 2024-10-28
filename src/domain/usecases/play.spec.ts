@@ -31,27 +31,27 @@ const simpleStabilisedGame = fromString(`
 describe("play", () => {
   it("finishes after the specified number of turns", async () => {
     const result = await play(simpleCycle, { loop: true, maxTurns: 6 });
-    expect(result).toEqual({ game: simpleCycle, stable: false, turn: 6 });
+    expect(result).toEqual({ game: simpleCycle, settled: false, turn: 6 });
   });
 
   it("detects cycles", async () => {
     const result = await play(simpleCycle, { loop: false, maxTurns: 10 });
     expect(result).toEqual({
       game: simpleCycle,
-      stable: false,
+      settled: false,
       turn: 4,
       cycle: [simpleCycle, simpleCycleAlternate],
     });
   });
 
-  it("detects stabilised games", async () => {
+  it("detects settled games", async () => {
     const result = await play(simpleStabilisingGame, {
       loop: false,
       maxTurns: 10,
     });
     expect(result).toEqual({
       game: simpleStabilisedGame,
-      stable: true,
+      settled: true,
       turn: 4,
     });
   });
