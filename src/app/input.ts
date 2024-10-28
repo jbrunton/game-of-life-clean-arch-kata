@@ -19,10 +19,10 @@ export const getInitialBoard = async (width: number, height: number) => {
     game = new Game(game.width, game.height, liveCells);
   };
 
-  const screenHeight = game.height + 2;
+  const screenHeight = game.height + 3;
 
   const renderFrame = () => {
-    return renderCells(game, ({ x, y }, isLive) => {
+    return renderCells(game, (isLive, { x, y }) => {
       const isSelected = x === cursorX && y === cursorY;
       return isLive ? (isSelected ? "∅" : "●") : isSelected ? "+" : " ";
     });
@@ -35,10 +35,12 @@ export const getInitialBoard = async (width: number, height: number) => {
     printFrame(frame, {
       clearScreen: true,
       screenHeight,
-      header: `Select initial cells. Navigate with arrows. Space to flip state. Enter to accept.`,
+      header:
+        "Select initial cells. Navigate with arrows. Space to flip state. Enter to accept.",
       delayMs: 0,
     });
     console.log(times(width, () => "=").join(" "));
+    console.info(`(${cursorX},${cursorY})`);
   };
 
   printSelection();

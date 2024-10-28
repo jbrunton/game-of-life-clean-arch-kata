@@ -7,7 +7,7 @@ type FramesResult = {
 
 export const renderCells = (
   game: Game,
-  renderCell: (cell: Cell, isLive: boolean) => string,
+  renderCell: (isLive: boolean, cell: Cell) => string,
 ) => {
   const cells = game.mapCells(renderCell);
   return cells.map((row) => row.join(" ")).join("\n");
@@ -26,10 +26,10 @@ export function renderFrames(
 ): { nextFrame: string; betweenFrame?: string };
 
 export function renderFrames(game: Game, prevTurn?: Game): FramesResult {
-  const nextFrame = renderCells(game, (_, isLive) => (isLive ? "●" : " "));
+  const nextFrame = renderCells(game, (isLive) => (isLive ? "●" : " "));
 
   const betweenFrame = prevTurn
-    ? renderCells(game, ({ x, y }, isLive) => {
+    ? renderCells(game, (isLive, { x, y }) => {
         const died = !isLive && prevTurn.isLive(x, y);
         return isLive ? "●" : died ? "◌" : " ";
       })
