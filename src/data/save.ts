@@ -1,28 +1,9 @@
 import { Cell, Game } from "entities/game";
-import { db } from "./config";
+import { db } from "./db";
 
-export type SavedGame = {
+type SavedGame = {
   name: string;
   seedState: { width: number; height: number; liveCells: Cell[] };
-};
-
-export const init = async () => {
-  await db.raw(
-    `
-    CREATE TABLE IF NOT EXISTS saved_games (
-      name VARCHAR(100) PRIMARY KEY,
-      seedState JSONB NOT NULL
-    )
-    `,
-  );
-};
-
-export const drop = async () => {
-  await db.raw(
-    `
-    DROP TABLE saved_games;
-    `,
-  );
 };
 
 export const saveGame = async (name: string, game: Game) => {

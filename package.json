@@ -10,7 +10,10 @@
     "build": "tsc --noEmit",
     "format": "prettier . --write",
     "game": "ts-node src/app/main",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:migrate:make": "knex migrate:make",
+    "db:migrate": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback"
   },
   "keywords": [],
   "author": "",

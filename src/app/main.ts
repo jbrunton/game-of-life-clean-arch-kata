@@ -3,8 +3,8 @@ import { playGame } from "./play";
 import { getInitialBoard } from "./input";
 import { parseNumber } from "./commands/parsers";
 import { Command } from "commander";
-import { getSavedGame, init, listGames, saveGame } from "data/save";
-import { db } from "data/config";
+import { getSavedGame, listGames, saveGame } from "data/save";
+import { db } from "data/db";
 
 const program = new Command("game-of-life");
 
@@ -16,8 +16,6 @@ program
   .option("-c, --cell-count <number>", "number of live cells", parseNumber)
   .requiredOption("-n, --name <string>", "saved game name")
   .action(async (opts) => {
-    await init();
-
     const width = opts.width;
     const height = opts.height;
 

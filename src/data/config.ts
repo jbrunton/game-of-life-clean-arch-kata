@@ -1,11 +1,14 @@
-import knex from "knex";
+import type { Knex } from "knex";
 
-export const db = knex({
+export const config: Knex.Config = {
   client: "sqlite3",
   connection: {
-    filename: "data/db.sqlite",
+    filename: "./db/data/db.sqlite3",
+  },
+  migrations: {
+    directory: "./db/migrations",
   },
 
   // sqlite does not support inserting default values
   useNullAsDefault: true,
-});
+};

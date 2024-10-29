@@ -52,6 +52,10 @@ module.exports = {
         type: "data",
         pattern: "src/data",
       },
+      {
+        type: "migrations",
+        pattern: "db/migrations",
+      },
     ],
     "boundaries/ignore": ["*.*", "src/fixtures/**", "**/*.spec.ts"], // ignore top level config files
   },
@@ -70,7 +74,7 @@ module.exports = {
             allow: ["entities", "usecases"],
           },
           {
-            from: "app",
+            from: ["app", "migrations"],
             allow: ["entities", "usecases", "data"],
           },
         ],
