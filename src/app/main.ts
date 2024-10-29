@@ -5,6 +5,7 @@ import { parseNumber } from "./commands/parsers";
 import { Command } from "commander";
 import { getSavedGame, listGames, saveGame } from "data/save";
 import { db } from "data/db";
+import { pick } from "remeda";
 
 const program = new Command("game-of-life");
 
@@ -14,6 +15,7 @@ program
   .option("-h, --height <number>", "board height", parseNumber, 10)
   .option("-s, --seed <number>", "seed value")
   .option("-c, --cell-count <number>", "number of live cells", parseNumber)
+  .option("-d, --description <string>", "a description of the saved game")
   .requiredOption("-n, --name <string>", "saved game name")
   .action(async (opts) => {
     const width = opts.width;
@@ -28,15 +30,13 @@ program
             cellCount: opts.cellCount,
           })
         : await getInitialBoard(width, height);
-    await saveGame(opts.name, game);
-    console.info(opts);
+
+    await saveGame(opts.name, game, opts.description);
   });
 
 program.command("list").action(async () => {
   const games = await listGames();
-  games.forEach((game) => {
-    console.info(game.name);
-  });
+  console.table(games.map((game) => pick(game, ["name", "description"])));
 });
 
 program

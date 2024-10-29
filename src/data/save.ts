@@ -4,9 +4,14 @@ import { db } from "./db";
 type SavedGame = {
   name: string;
   seedState: { width: number; height: number; liveCells: Cell[] };
+  description?: string;
 };
 
-export const saveGame = async (name: string, game: Game) => {
+export const saveGame = async (
+  name: string,
+  game: Game,
+  description?: string,
+) => {
   const seedState = JSON.stringify({
     width: game.width,
     height: game.height,
@@ -16,6 +21,7 @@ export const saveGame = async (name: string, game: Game) => {
   await db("saved_games").insert({
     name,
     seedState,
+    description,
   });
 };
 
