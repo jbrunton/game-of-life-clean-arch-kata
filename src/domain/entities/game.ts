@@ -11,7 +11,7 @@ const cellKey = ({ x, y }: { x: number; y: number }) => `${x},${y}`;
 type SeedParams = {
   width: number;
   height: number;
-  seed: number;
+  seed: string;
   cellCount: number;
 };
 
