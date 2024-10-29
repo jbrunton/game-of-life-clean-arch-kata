@@ -48,6 +48,10 @@ module.exports = {
         type: "usecases",
         pattern: "src/domain/usecases",
       },
+      {
+        type: "data",
+        pattern: "src/data",
+      },
     ],
     "boundaries/ignore": ["*.*", "src/fixtures/**", "**/*.spec.ts"], // ignore top level config files
   },
@@ -62,8 +66,12 @@ module.exports = {
             allow: ["entities"],
           },
           {
-            from: "app",
+            from: "data",
             allow: ["entities", "usecases"],
+          },
+          {
+            from: "app",
+            allow: ["entities", "usecases", "data"],
           },
         ],
       },

@@ -19,6 +19,7 @@
   "dependencies": {
     "@inquirer/prompts": "^7.0.1",
     "commander": "^12.1.0",
+    "knex": "^3.1.0",
     "remeda": "^2.16.0",
     "seedrandom": "^3.0.5",
     "sqlite3": "^5.1.7",

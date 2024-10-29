@@ -3,7 +3,8 @@ import { playGame } from "./play";
 import { getInitialBoard } from "./input";
 import { parseNumber } from "./commands/parsers";
 import { Command } from "commander";
-import { getSavedGame, init, listGames, saveGame } from "./data/save";
+import { getSavedGame, init, listGames, saveGame } from "data/save";
+import { db } from "data/config";
 
 const program = new Command("game-of-life");
 
@@ -35,10 +36,9 @@ program
 
 program.command("list").action(async () => {
   const games = await listGames();
-  console.table(games);
-  // games.forEach((game) => {
-  //   console.info(game.name);
-  // });
+  games.forEach((game) => {
+    console.info(game.name);
+  });
 });
 
 program
@@ -95,7 +95,10 @@ program
     await playGame(game, { maxTurns, delayMs, quiet, loop, printAll });
   });
 
-program.parseAsync().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+program
+  .parseAsync()
+  .then(() => db.destroy())
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
