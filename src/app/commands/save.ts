@@ -1,7 +1,8 @@
 import { getInitialBoard } from "app/input";
 import { saveGame } from "data/save";
 import { Game } from "entities/game";
-import { Arguments, Argv, CommandModule, InferredOptionTypes } from "yargs";
+import { CommandModule } from "yargs";
+import { GetArgsT } from "./types";
 
 const args = {
   width: {
@@ -33,12 +34,12 @@ const args = {
   },
 } as const;
 
-type ArgsT = Arguments<InferredOptionTypes<typeof args>>;
+type ArgsT = GetArgsT<typeof args>;
 
 export const saveCommand: CommandModule<object, ArgsT> = {
   command: "save",
   describe: "save a game to replay",
-  builder: (yargs: Argv) => yargs.options(args),
+  builder: (yargs) => yargs.options(args),
   handler: async (args) => {
     const width = args.width;
     const height = args.height;
