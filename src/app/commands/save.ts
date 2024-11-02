@@ -2,7 +2,7 @@ import { getInitialBoard } from "app/input";
 import { saveGame } from "data/save";
 import { Game } from "entities/game";
 import { CommandModule } from "yargs";
-import { GetArgsT } from "./types";
+import { GetArgsT, OptionsT } from "./types";
 
 const args = {
   width: {
@@ -32,7 +32,7 @@ const args = {
     describe: "saved game name",
     demandOption: true,
   },
-} as const;
+} satisfies OptionsT;
 
 type ArgsT = GetArgsT<typeof args>;
 

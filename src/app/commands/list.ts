@@ -11,5 +11,3 @@ export const listCommand: CommandModule = {
     console.table(games.map((game) => pick(game, ["name", "description"])));
   },
 };
-
-// export default list;
