@@ -1,5 +1,4 @@
-import { CommandModule } from "yargs";
-import { GetArgsT, OptionsT } from "./types";
+import { Command, OptionsT } from "./types";
 import { Game } from "entities/game";
 import { getSavedGame } from "data/save";
 import { getInitialBoard } from "app/input";
@@ -64,13 +63,11 @@ const args = {
   },
 } satisfies OptionsT;
 
-type ArgsT = GetArgsT<typeof args>;
-
-export const playCommand: CommandModule<object, ArgsT> = {
+export const playCommand: Command<typeof args> = {
   command: "play",
   describe: "play a game",
   builder: (yargs) => yargs.options(args),
-  handler: async (args: ArgsT) => {
+  handler: async (args) => {
     const width = args.width;
     const height = args.height;
 

@@ -1,4 +1,4 @@
-import { Options, InferredOptionTypes } from "yargs";
+import { Options, InferredOptionTypes, CommandModule } from "yargs";
 
 export type OptionsT = Record<string, Options>;
 
@@ -9,4 +9,8 @@ type Arguments<T = object> = T & {
   $0: string;
 };
 
-export type GetArgsT<T extends OptionsT> = Arguments<InferredOptionTypes<T>>;
+type GetArgsT<T extends OptionsT> = Arguments<InferredOptionTypes<T>>;
+
+export type Command<O extends OptionsT> = CommandModule<object, GetArgsT<O>> & {
+  handler: (args: GetArgsT<O>) => void | Promise<void>;
+};

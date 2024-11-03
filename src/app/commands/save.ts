@@ -1,8 +1,7 @@
 import { getInitialBoard } from "app/input";
 import { saveGame } from "data/save";
 import { Game } from "entities/game";
-import { CommandModule } from "yargs";
-import { GetArgsT, OptionsT } from "./types";
+import { Command, OptionsT } from "./types";
 
 const args = {
   width: {
@@ -34,9 +33,7 @@ const args = {
   },
 } satisfies OptionsT;
 
-type ArgsT = GetArgsT<typeof args>;
-
-export const saveCommand: CommandModule<object, ArgsT> = {
+export const saveCommand: Command<typeof args> = {
   command: "save",
   describe: "save a game to replay",
   builder: (yargs) => yargs.options(args),
@@ -45,12 +42,12 @@ export const saveCommand: CommandModule<object, ArgsT> = {
     const height = args.height;
 
     const game =
-      args.seed && args.cellCount
+      args.seed && args["cell-count"]
         ? Game.seed({
             width,
             height,
             seed: args.seed,
-            cellCount: args.cellCount,
+            cellCount: args["cell-count"],
           })
         : await getInitialBoard(width, height);
 
