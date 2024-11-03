@@ -10,10 +10,14 @@ const program = yargs(hideBin(process.argv))
   .command(saveCommand)
   .command(playCommand);
 
-program
-  .parseAsync()
-  .then(() => db.destroy())
+const run = async () => {
+  await db.migrate.latest();
+  await program.parseAsync();
+};
+
+run()
   .catch((e) => {
     console.error(e);
     process.exit(1);
-  });
+  })
+  .finally(() => db.destroy());
