@@ -1,72 +1,74 @@
-import { Command, OptionsT } from "./types";
 import { Game } from "entities/game";
 import { getSavedGame } from "data/save";
 import { getInitialBoard } from "app/input";
 import { playGame } from "app/play";
+import { Argv } from "yargs";
+import { StrictCommandType } from "./types";
 
-const args = {
-  width: {
-    type: "number",
-    alias: "w",
-    default: 10,
-    describe: "board width",
-  },
-  height: {
-    type: "number",
-    alias: "h",
-    default: 10,
-    describe: "board height",
-  },
-  seed: { type: "string", alias: "s" },
-  "cell-count": {
-    type: "number",
-  },
-  description: {
-    type: "string",
-    alias: "d",
-    describe: "a description of the saved game",
-  },
-  quiet: {
-    type: "boolean",
-    alias: "q",
-    describe: "skips rendering the output",
-    default: false,
-  },
-  "print-all": {
-    type: "boolean",
-    alias: "a",
-    describe: "print all turns (disable animation)",
-    default: false,
-  },
-  loop: {
-    type: "boolean",
-    alias: "l",
-    describe: "don't exit on cycles",
-    default: false,
-  },
-  name: {
-    type: "string",
-    alias: "n",
-    describe: "play a saved game",
-  },
-  "max-turns": {
-    type: "number",
-    alias: "t",
-    describe: "max turns to play",
-    default: 50,
-  },
-  delay: {
-    type: "number",
-    alias: "d",
-    describe: "delay per rendered frame, ms",
-    default: 50,
-  },
-} satisfies OptionsT;
+const builder = (yargs: Argv) =>
+  yargs.options({
+    width: {
+      type: "number",
+      alias: "w",
+      default: 10,
+      describe: "board width",
+    },
+    height: {
+      type: "number",
+      alias: "h",
+      default: 10,
+      describe: "board height",
+    },
+    seed: { type: "string", alias: "s" },
+    "cell-count": {
+      type: "number",
+    },
+    description: {
+      type: "string",
+      alias: "d",
+      describe: "a description of the saved game",
+    },
+    quiet: {
+      type: "boolean",
+      alias: "q",
+      describe: "skips rendering the output",
+      default: false,
+    },
+    "print-all": {
+      type: "boolean",
+      alias: "a",
+      describe: "print all turns (disable animation)",
+      default: false,
+    },
+    loop: {
+      type: "boolean",
+      alias: "l",
+      describe: "don't exit on cycles",
+      default: false,
+    },
+    name: {
+      type: "string",
+      alias: "n",
+      describe: "play a saved game",
+    },
+    "max-turns": {
+      type: "number",
+      alias: "t",
+      describe: "max turns to play",
+      default: 50,
+    },
+    delay: {
+      type: "number",
+      alias: "d",
+      describe: "delay per rendered frame, ms",
+      default: 50,
+    },
+  });
 
-export const playCommand: Command<typeof args> = {
+export const playCommand: StrictCommandType<typeof builder> = {
   command: "play",
   describe: "play a game",
-  builder: (yargs) => yargs.options(args),
+  builder,
   handler: async (args) => {
     const width = args.width;
     const height = args.height;

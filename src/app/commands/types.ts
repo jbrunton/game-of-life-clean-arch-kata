@@ -1,16 +1,31 @@
-import { Options, InferredOptionTypes, CommandModule } from "yargs";
+import { Arguments, BuilderCallback, CamelCaseKey, CommandModule } from "yargs";
 
-export type OptionsT = Record<string, Options>;
-
-type Arguments<T = object> = T & {
+/**
+ * A stricter version of the @types/yargs `ArgumentsCamelCase` type. The `Arguments` and
+ * `ArgumentsCamelCase` types allow arbitrary fields. This type allows only those which are
+ * explicitly defined.
+ */
+export type StrictArguments<T = object> = {
+  [key in keyof T as key | CamelCaseKey<key>]: T[key];
+} & {
   /** Non-option arguments */
   _: Array<string | number>;
   /** The script name or node command */
   $0: string;
 };
 
-type GetArgsT<T extends OptionsT> = Arguments<InferredOptionTypes<T>>;
+/**
+ * Convenience conditional type for strictly typing a command given the type of its builder.
+ */
+export type StrictCommandType<T> =
+  T extends BuilderCallback<object, infer R>
+    ? CommandModule<object, Arguments<R>> & {
+        handler: (args: StrictArguments<R>) => void | Promise<void>;
+      }
+    : never;
 
-export type Command<O extends OptionsT> = CommandModule<object, GetArgsT<O>> & {
-  handler: (args: GetArgsT<O>) => void | Promise<void>;
-};
+/**
+ * Convenience conditional type for strictly typing the `args` parameter of a handler.
+ */
+export type StrictArgsType<T> =
+  T extends BuilderCallback<object, infer R> ? StrictArguments<R> : never;
