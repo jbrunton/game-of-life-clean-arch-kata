@@ -1,27 +1,10 @@
-import { getInitialBoard } from "app/input";
 import { saveGame } from "data/save";
-import { Game } from "entities/game";
 import { Argv } from "yargs";
 import { StrictCommandType } from "./types";
+import { buildSeedGame, seedGameBuilder } from "./common";
 
 const builder = (yargs: Argv) =>
-  yargs.options({
-    width: {
-      type: "number",
-      alias: "w",
-      default: 10,
-      describe: "board width",
-    },
-    height: {
-      type: "number",
-      alias: "h",
-      default: 10,
-      describe: "board height",
-    },
-    seed: { type: "string", alias: "s" },
-    "cell-count": {
-      type: "number",
-    },
+  seedGameBuilder(yargs).options({
     description: {
       type: "string",
       alias: "d",
@@ -40,18 +23,7 @@ export const saveCommand: StrictCommandType<typeof builder> = {
   describe: "save a game to replay",
   builder,
   handler: async (args) => {
-    const width = args.width;
-    const height = args.height;
-
-    const game =
-      args.seed && args.cellCount
-        ? Game.seed({
-            width,
-            height,
-            seed: args.seed,
-            cellCount: args.cellCount,
-          })
-        : await getInitialBoard(width, height);
+    const game = await buildSeedGame(args);
 
     await saveGame(args.name, game, args.description);
   },

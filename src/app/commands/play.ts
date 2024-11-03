@@ -1,28 +1,12 @@
-import { Game } from "entities/game";
 import { getSavedGame } from "data/save";
-import { getInitialBoard } from "app/input";
 import { playGame } from "app/play";
 import { Argv } from "yargs";
 import { StrictCommandType } from "./types";
+import { buildSeedGame, seedGameBuilder } from "./common";
+import { pick } from "remeda";
 
 const builder = (yargs: Argv) =>
-  yargs.options({
-    width: {
-      type: "number",
-      alias: "w",
-      default: 10,
-      describe: "board width",
-    },
-    height: {
-      type: "number",
-      alias: "h",
-      default: 10,
-      describe: "board height",
-    },
-    seed: { type: "string", alias: "s" },
-    "cell-count": {
-      type: "number",
-    },
+  seedGameBuilder(yargs).options({
     description: {
       type: "string",
       alias: "d",
@@ -70,39 +54,13 @@ export const playCommand: StrictCommandType<typeof builder> = {
   describe: "play a game",
   builder,
   handler: async (args) => {
-    const width = args.width;
-    const height = args.height;
+    const game = args.name
+      ? await getSavedGame(args.name)
+      : await buildSeedGame(args);
 
-    if (
-      width * 2 > process.stdout.columns ||
-      height + 1 > process.stdout.rows
-    ) {
-      console.error(
-        `Console is too small (${process.stdout.columns / 2} x ${
-          process.stdout.rows
-        }) for specified dimensions (${width} x ${height}). Note: grid cells occupy two terminal columns.`,
-      );
-      process.exit(1);
-    }
-
-    const quiet = args.quiet;
-    const loop = args.loop;
-    const printAll = args["print-all"];
-    const maxTurns = args["max-turns"];
-    const delayMs = args.delay;
-    const name = args.name;
-
-    const game = name
-      ? await getSavedGame(name)
-      : args.seed && args["cell-count"]
-        ? Game.seed({
-            width,
-            height,
-            seed: args.seed,
-            cellCount: args["cell-count"],
-          })
-        : await getInitialBoard(width, height);
-
-    await playGame(game, { maxTurns, delayMs, quiet, loop, printAll });
+    await playGame(game, {
+      delayMs: args.delay,
+      ...pick(args, ["quiet", "loop", "maxTurns", "printAll"]),
+    });
   },
 };
