@@ -3,31 +3,31 @@ import { describe, expect, it } from "@jest/globals";
 import { Game } from "entities/game";
 import { fromString } from "fixtures/game";
 
-const simpleCycle = fromString(`
+const simpleCycle = fromString`
   XX__
   XX__
   __XX
   __XX
-`);
+`;
 
-const simpleCycleAlternate = fromString(`
+const simpleCycleAlternate = fromString`
   XX__
   X___
   ___X
   __XX
-`);
+`;
 
-const simpleStabilisingGame = fromString(`
+const simpleStabilisingGame = fromString`
   XX_
   X_X
   X__
-`);
+`;
 
-const simpleStabilisedGame = fromString(`
+const simpleStabilisedGame = fromString`
   XX_
   XX_
   ___
-`);
+`;
 
 describe("play", () => {
   it("finishes after the specified number of turns", async () => {
@@ -35,7 +35,7 @@ describe("play", () => {
     expect(result).toEqual({ game: simpleCycle, settled: false, turn: 6 });
   });
 
-  it("invokes a the onTurn callback each turn", async () => {
+  it("invokes the onTurn callback each turn", async () => {
     const turns: Game[] = [];
 
     const onTurn: PlayParams["onTurn"] = async (game) => {
