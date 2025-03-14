@@ -1,7 +1,7 @@
 import { Game } from "entities/game";
 import { isDeepEqual } from "remeda";
 
-type PlayParams = {
+export type PlayParams = {
   maxTurns: number;
   loop: boolean;
   onTurn?: (game: Game, turn: number, prevTurn?: Game) => Promise<void>;
