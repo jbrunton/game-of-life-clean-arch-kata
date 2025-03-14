@@ -9,7 +9,7 @@ export const asString = (game: Game): string => {
   ).join("\n");
 };
 
-export const dedent = ([str]: TemplateStringsArray) => {
+export const dedent = ([str]: TemplateStringsArray): string => {
   return str
     .split("\n")
     .map((line) => line.trimStart())
@@ -17,7 +17,7 @@ export const dedent = ([str]: TemplateStringsArray) => {
     .join("\n");
 };
 
-export const fromString = (game: string): Game => {
+export const fromString = ([game]: TemplateStringsArray): Game => {
   const rows = game
     .split("\n")
     .map((s) => s.trim())
