@@ -1,4 +1,4 @@
-import { flat, isNonNullish, times } from "remeda";
+import { flat, isNonNullish, sortBy, times } from "remeda";
 import seedrandom from "seedrandom";
 
 export type Cell = {
@@ -19,15 +19,20 @@ export class Board {
   /**
    * A map of live cells. This could be a set, but it saves parsing strings back into cells.
    */
-  private readonly liveCells: Map<string, Cell>;
+  private readonly gridMap: Map<string, Cell>;
+
+  readonly liveCells: Cell[];
 
   constructor(
     readonly width: number,
     readonly height: number,
     liveCells: Cell[],
   ) {
-    this.liveCells = new Map(
-      liveCells.map((cell) => {
+    // consistently sort cells for equality comparison purposes
+    this.liveCells = sortBy(liveCells, (cell) => [cell.x, cell.y]);
+
+    this.gridMap = new Map(
+      this.liveCells.map((cell) => {
         if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height) {
           throw new Error(`Invalid cell coordinates: ${cell.x},${cell.y}`);
         }
@@ -37,7 +42,7 @@ export class Board {
   }
 
   isLive(x: number, y: number): boolean {
-    return this.liveCells.get(cellKey({ x, y })) !== undefined;
+    return this.gridMap.get(cellKey({ x, y })) !== undefined;
   }
 
   mapCells<T>(f: (isLive: boolean, cell: Cell) => T): T[][] {
