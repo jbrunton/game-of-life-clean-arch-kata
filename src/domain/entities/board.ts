@@ -19,14 +19,14 @@ export class Board {
   /**
    * A map of live cells. This could be a set, but it saves parsing strings back into cells.
    */
-  readonly gridMap: Map<string, Cell>;
+  private readonly liveCells: Map<string, Cell>;
 
   constructor(
     readonly width: number,
     readonly height: number,
     liveCells: Cell[],
   ) {
-    this.gridMap = new Map(
+    this.liveCells = new Map(
       liveCells.map((cell) => {
         if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height) {
           throw new Error(`Invalid cell coordinates: ${cell.x},${cell.y}`);
@@ -37,7 +37,7 @@ export class Board {
   }
 
   isLive(x: number, y: number): boolean {
-    return this.gridMap.get(cellKey({ x, y })) !== undefined;
+    return this.liveCells.get(cellKey({ x, y })) !== undefined;
   }
 
   mapCells<T>(f: (isLive: boolean, cell: Cell) => T): T[][] {
