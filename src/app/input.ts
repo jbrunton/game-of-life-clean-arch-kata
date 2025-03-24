@@ -1,11 +1,11 @@
-import { Game } from "entities/game";
+import { Board } from "entities/board";
 import { printFrame } from "./output";
 import readline from "readline";
 import { renderCells } from "usecases/render";
 import { times } from "remeda";
 
 export const getInitialBoard = async (width: number, height: number) => {
-  let game = new Game(width, height, []);
+  let game = new Board(width, height, []);
   let cursorX = 0;
   let cursorY = 0;
 
@@ -16,7 +16,7 @@ export const getInitialBoard = async (width: number, height: number) => {
         )
       : [...game.liveCells, { x: cursorX, y: cursorY }];
 
-    game = new Game(game.width, game.height, liveCells);
+    game = new Board(game.width, game.height, liveCells);
   };
 
   const screenHeight = game.height + 3;

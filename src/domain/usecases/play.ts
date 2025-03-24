@@ -1,23 +1,23 @@
-import { Game } from "entities/game";
+import { Board } from "entities/board";
 import { isDeepEqual } from "remeda";
 
 export type PlayParams = {
   maxTurns: number;
   loop: boolean;
-  onTurn?: (game: Game, turn: number, prevTurn?: Game) => Promise<void>;
+  onTurn?: (game: Board, turn: number, prevTurn?: Board) => Promise<void>;
 };
 
 export type PlayResult = {
-  game: Game;
+  game: Board;
   settled: boolean;
   turn: number;
-  cycle?: Game[];
+  cycle?: Board[];
 };
 
 export const play = async (
-  game: Game,
+  game: Board,
   { maxTurns, onTurn, loop }: PlayParams,
-  history: Game[] = [],
+  history: Board[] = [],
 ): Promise<PlayResult> => {
   const turn = history.length;
 
@@ -50,7 +50,7 @@ export const play = async (
   ]);
 };
 
-const findCycle = (history: Game[], size = 2) => {
+const findCycle = (history: Board[], size = 2) => {
   // we need space for at least two cycles
   if (size > history.length / 2) {
     return null;

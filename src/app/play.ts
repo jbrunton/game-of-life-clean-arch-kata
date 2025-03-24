@@ -1,4 +1,4 @@
-import { Game } from "entities/game";
+import { Board } from "entities/board";
 import { play, PlayResult } from "usecases/play";
 import { renderFrames } from "usecases/render";
 import { printFrame } from "./output";
@@ -11,7 +11,7 @@ type GameOpts = {
   printAll: boolean;
 };
 
-export const playGame = async (game: Game, opts: GameOpts) => {
+export const playGame = async (game: Board, opts: GameOpts) => {
   const { quiet, loop, maxTurns } = opts;
 
   if (!quiet) {
@@ -29,7 +29,7 @@ export const playGame = async (game: Game, opts: GameOpts) => {
 
 const onTurn =
   ({ quiet, delayMs, printAll }: GameOpts) =>
-  async (game: Game, turn: number, prevTurn?: Game) => {
+  async (game: Board, turn: number, prevTurn?: Board) => {
     if (quiet) {
       return;
     }
@@ -87,7 +87,7 @@ const onFinish =
     }
   };
 
-const printCycle = (cycle: Game[], screenHeight: number) => {
+const printCycle = (cycle: Board[], screenHeight: number) => {
   cycle.forEach((game, index) => {
     const { nextFrame, betweenFrame } = renderFrames(
       game,

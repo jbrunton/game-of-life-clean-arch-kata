@@ -1,11 +1,11 @@
 import { describe, expect, it } from "@jest/globals";
 import { renderCells } from "./render";
-import { Game } from "entities/game";
+import { Board } from "entities/board";
 import { dedent } from "fixtures/game";
 
 describe("renderCells", () => {
   it("renders cells on a game board", () => {
-    const game = new Game(3, 3, [
+    const game = new Board(3, 3, [
       { x: 0, y: 0 },
       { x: 1, y: 1 },
     ]);

@@ -15,7 +15,7 @@ type SeedParams = {
   cellCount: number;
 };
 
-export class Game {
+export class Board {
   readonly gridMap: Map<string, Cell>;
   readonly liveCells: Cell[];
 
@@ -47,7 +47,7 @@ export class Game {
     );
   }
 
-  nextGeneration(): Game {
+  nextGeneration(): Board {
     const countNeighbors = (x: number, y: number) => {
       return [
         this.isLive(x - 1, y - 1),
@@ -72,14 +72,14 @@ export class Game {
       }
     });
 
-    return new Game(
+    return new Board(
       this.width,
       this.height,
       flat(liveCells).filter(isNonNullish),
     );
   }
 
-  static seed({ width, height, seed, cellCount }: SeedParams): Game {
+  static seed({ width, height, seed, cellCount }: SeedParams): Board {
     const rng = seedrandom(seed.toString());
 
     const cells = times(cellCount, () => {
@@ -88,7 +88,7 @@ export class Game {
       return { x, y };
     });
 
-    return new Game(width, height, cells);
+    return new Board(width, height, cells);
   }
 }
 

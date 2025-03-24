@@ -1,6 +1,6 @@
 import { play, PlayParams } from "./play";
 import { describe, expect, it } from "@jest/globals";
-import { Game } from "entities/game";
+import { Board } from "entities/board";
 import { fromString } from "fixtures/game";
 
 const simpleCycle = fromString`
@@ -36,7 +36,7 @@ describe("play", () => {
   });
 
   it("invokes the onTurn callback each turn", async () => {
-    const turns: Game[] = [];
+    const turns: Board[] = [];
 
     const onTurn: PlayParams["onTurn"] = async (game) => {
       turns.push(game);
