@@ -7,6 +7,11 @@ export type Cell = {
 
 const cellKey = ({ x, y }: { x: number; y: number }) => `${x},${y}`;
 
+/**
+ * Represents the state of a universe in Conway's Game of Life at a given moment in time. A board
+ * has a finite list of live cells and may be compared for equality against other states of the
+ * universe.
+ */
 export class Board {
   /**
    * A map of live cells. This could be a set, but it saves parsing strings back into cells.

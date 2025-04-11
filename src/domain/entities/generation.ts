@@ -7,19 +7,34 @@ type CellContext = {
   neighborCount: number;
 };
 
+/**
+ * When a live cell's surroundings are underpopulated, it dies.
+ */
 const isUnderpopulated = ({ isLive, neighborCount }: CellContext) =>
   isLive && neighborCount <= 1;
+
+/**
+ * When a live cell's surroundings are overpopulated, it dies.
+ */
 const isOverpopulated = ({ isLive, neighborCount }: CellContext) =>
   isLive && neighborCount >= 4;
-const canReproducible = ({ isLive, neighborCount }: CellContext) =>
+
+/**
+ * When a dead cell has precisely 3 neighbours, a new cell is born.
+ */
+const canReproduce = ({ isLive, neighborCount }: CellContext) =>
   !isLive && neighborCount === 3;
 
+/**
+ * Given a board, calculates the next state of the board based on the births and deaths
+ * following from the current state.
+ */
 export const nextGeneration = (board: Board): Board => {
   const isAliveAfterTick = ({ isLive, neighborCount }: CellContext) =>
     match({ isLive, neighborCount })
       .when(isUnderpopulated, () => false)
       .when(isOverpopulated, () => false)
-      .when(canReproducible, () => true)
+      .when(canReproduce, () => true)
       .otherwise(() => isLive);
 
   const liveCells = board.mapCells((isLive, cell) => {
