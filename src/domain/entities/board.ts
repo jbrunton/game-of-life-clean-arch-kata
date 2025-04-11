@@ -1,6 +1,5 @@
-import { flat, floor, isNonNullish, times } from "remeda";
+import { floor, isNonNullish, times } from "remeda";
 import seedrandom from "seedrandom";
-import { match } from "ts-pattern";
 
 export type Cell = {
   x: number;
@@ -37,17 +36,20 @@ export class Board {
     );
   }
 
-  isLive(x: number, y: number): boolean {
-    return this.liveCellsMap.get(cellKey({ x, y })) !== undefined;
+  isLive(cell: Cell): boolean {
+    return this.liveCellsMap.get(cellKey(cell)) !== undefined;
   }
 
   mapCells<T>(f: (isLive: boolean, cell: Cell) => T): T[][] {
     return times(this.height, (y) =>
-      times(this.width, (x) => f(this.isLive(x, y), { x, y })),
+      times(this.width, (x) => {
+        const cell = { x, y };
+        return f(this.isLive(cell), cell);
+      }),
     );
   }
 
-  getNeighbors(x: number, y: number): Cell[] {
+  getNeighbors({ x, y }: Cell): Cell[] {
     const cells = times(9, (i) => {
       const xOffset = (i % 3) - 1;
       const yOffset = floor(0)(i / 3) - 1;
@@ -62,43 +64,6 @@ export class Board {
 
   get liveCells(): Cell[] {
     return Array.from(this.liveCells.values());
-  }
-
-  nextGeneration(): Board {
-    const countNeighbors = (x: number, y: number) =>
-      this.getNeighbors(x, y).filter((c) => this.isLive(c.x, c.y)).length;
-
-    type CellContext = {
-      isLive: boolean;
-      neighborCount: number;
-    };
-
-    const isUnderpopulated = ({ isLive, neighborCount }: CellContext) =>
-      isLive && neighborCount <= 1;
-    const isOverpopulated = ({ isLive, neighborCount }: CellContext) =>
-      isLive && neighborCount >= 4;
-    const canReproducible = ({ isLive, neighborCount }: CellContext) =>
-      !isLive && neighborCount === 3;
-
-    const isNextGenAlive = (isLive: boolean, cell: Cell) => {
-      const neighborCount = countNeighbors(cell.x, cell.y);
-
-      return match({ isLive, neighborCount })
-        .when(isUnderpopulated, () => false)
-        .when(isOverpopulated, () => false)
-        .when(canReproducible, () => true)
-        .otherwise(() => isLive);
-    };
-
-    const liveCells = this.mapCells((isLive, cell) => {
-      return isNextGenAlive(isLive, cell) ? cell : null;
-    });
-
-    return new Board(
-      this.width,
-      this.height,
-      flat(liveCells).filter(isNonNullish),
-    );
   }
 
   static seed({ width, height, seed, cellCount }: SeedParams): Board {

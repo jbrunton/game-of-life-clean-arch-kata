@@ -10,7 +10,7 @@ export const getInitialBoard = async (width: number, height: number) => {
   let cursorY = 0;
 
   const invertSelection = () => {
-    const liveCells = game.isLive(cursorX, cursorY)
+    const liveCells = game.isLive({ x: cursorX, y: cursorY })
       ? game.liveCells.filter(
           (cell) => cell.x !== cursorX || cell.y !== cursorY,
         )

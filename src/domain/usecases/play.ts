@@ -1,4 +1,5 @@
 import { Board } from "entities/board";
+import { nextGeneration } from "entities/generation";
 import { isDeepEqual } from "remeda";
 
 export type PlayParams = {
@@ -44,7 +45,7 @@ export const play = async (
     await onTurn(game, history.length + 1, prevTurn);
   }
 
-  return play(game.nextGeneration(), { maxTurns, loop, onTurn }, [
+  return play(nextGeneration(game), { maxTurns, loop, onTurn }, [
     ...history,
     game,
   ]);
