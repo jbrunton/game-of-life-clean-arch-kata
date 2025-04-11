@@ -1,4 +1,4 @@
-import { floor, isNonNullish, times } from "remeda";
+import { flat, times } from "remeda";
 
 export type Cell = {
   x: number;
@@ -47,16 +47,18 @@ export class Board {
   }
 
   getNeighbors({ x, y }: Cell): Cell[] {
-    const cells = times(9, (i) => {
-      const xOffset = (i % 3) - 1;
-      const yOffset = floor(0)(i / 3) - 1;
+    const yOffsets = [-1, 0, 1];
+    const xOffsets = (yOffset: number) =>
+      yOffset === 0 ? [-1, 1] : [-1, 0, 1];
 
-      return xOffset === 0 && yOffset === 0
-        ? undefined
-        : { x: x + xOffset, y: y + yOffset };
-    });
-
-    return cells.filter(isNonNullish);
+    return flat(
+      yOffsets.map((yOffset) =>
+        xOffsets(yOffset).map((xOffset) => ({
+          x: x + xOffset,
+          y: y + yOffset,
+        })),
+      ),
+    );
   }
 
   get liveCells(): Cell[] {
