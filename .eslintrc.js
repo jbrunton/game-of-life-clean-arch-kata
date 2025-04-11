@@ -88,7 +88,7 @@ module.exports = {
         rules: [
           {
             from: "*",
-            allow: ["remeda", "seedrandom"],
+            allow: ["remeda", "seedrandom", "ts-pattern"],
           },
           {
             from: "app",

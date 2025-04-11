@@ -29,8 +29,8 @@ export function renderFrames(game: Board, prevTurn?: Board): FramesResult {
   const nextFrame = renderCells(game, (isLive) => (isLive ? "●" : " "));
 
   const betweenFrame = prevTurn
-    ? renderCells(game, (isLive, { x, y }) => {
-        const died = !isLive && prevTurn.isLive(x, y);
+    ? renderCells(game, (isLive, cell) => {
+        const died = !isLive && prevTurn.isLive(cell);
         return isLive ? "●" : died ? "◌" : " ";
       })
     : undefined;

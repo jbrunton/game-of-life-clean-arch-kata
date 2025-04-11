@@ -4,7 +4,7 @@ import { flat, isNonNullish, times } from "remeda";
 export const asString = (game: Board): string => {
   return times(game.height, (y) =>
     times(game.width, (x) => {
-      return game.isLive(x, y) ? "X" : "O";
+      return game.isLive({ x, y }) ? "X" : "O";
     }).join(""),
   ).join("\n");
 };

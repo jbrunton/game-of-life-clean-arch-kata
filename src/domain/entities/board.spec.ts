@@ -18,9 +18,9 @@ describe("Game", () => {
     });
 
     it("validates cell coordinates", () => {
-      expect(() => {
-        new Board(3, 3, [{ x: 3, y: 0 }]);
-      }).toThrowError("Invalid cell coordinates: 3,0");
+      expect(() => new Board(3, 3, [{ x: 3, y: 0 }])).toThrowError(
+        "Invalid cell coordinates: 3,0",
+      );
     });
   });
 
@@ -28,9 +28,26 @@ describe("Game", () => {
     it("returns whether a given cell is live", () => {
       const game = new Board(3, 3, [{ x: 0, y: 0 }]);
 
-      expect(game.isLive(0, 0)).toBeTruthy();
-      expect(game.isLive(1, 0)).toBeFalsy();
-      expect(game.isLive(0, 1)).toBeFalsy();
+      expect(game.isLive({ x: 0, y: 0 })).toBeTruthy();
+      expect(game.isLive({ x: 1, y: 0 })).toBeFalsy();
+      expect(game.isLive({ x: 0, y: 1 })).toBeFalsy();
+    });
+  });
+
+  describe("getNeighbours", () => {
+    it("returns the neighbors of the given cell", () => {
+      const game = new Board(3, 3, []);
+
+      expect(game.getNeighbors({ x: 1, y: 1 })).toEqual([
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 2, y: 0 },
+        { x: 0, y: 1 },
+        { x: 2, y: 1 },
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 },
+      ]);
     });
   });
 
