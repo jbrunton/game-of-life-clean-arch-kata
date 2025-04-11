@@ -1,7 +1,7 @@
 import { Argv } from "yargs";
 import { StrictArgsType } from "./types";
 import { getInitialBoard } from "app/input";
-import { Board } from "entities/board";
+import { seedBoard } from "usecases/seed";
 
 export const seedGameBuilder = (yargs: Argv) =>
   yargs.options({
@@ -38,7 +38,7 @@ export const buildSeedGame = async ({
   }
 
   if (seed && cellCount) {
-    return Board.seed({
+    return seedBoard({
       width,
       height,
       seed: seed,
