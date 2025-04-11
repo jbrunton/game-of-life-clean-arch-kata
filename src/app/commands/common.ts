@@ -20,6 +20,7 @@ export const seedGameBuilder = (yargs: Argv) =>
     seed: { type: "string", alias: "s" },
     "cell-count": {
       type: "number",
+      alias: "c",
     },
   });
 
@@ -31,9 +32,7 @@ export const buildSeedGame = async ({
 }: StrictArgsType<typeof seedGameBuilder>) => {
   if (width * 2 > process.stdout.columns || height + 1 > process.stdout.rows) {
     console.error(
-      `Console is too small (${process.stdout.columns / 2} x ${
-        process.stdout.rows
-      }) for specified dimensions (${width} x ${height}). Note: grid cells occupy two terminal columns.`,
+      `Console is too small (${process.stdout.columns / 2} x ${process.stdout.rows}) for specified dimensions (${width} x ${height}). Note: grid cells occupy two terminal columns.`,
     );
     process.exit(1);
   }
