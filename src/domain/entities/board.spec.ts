@@ -34,6 +34,23 @@ describe("Game", () => {
     });
   });
 
+  describe("getNeighbours", () => {
+    it("returns the neighbors of the given cell", () => {
+      const game = new Board(3, 3, []);
+
+      expect(game.getNeighbors(1, 1)).toEqual([
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 2, y: 0 },
+        { x: 0, y: 1 },
+        { x: 2, y: 1 },
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 },
+      ]);
+    });
+  });
+
   describe("equality", () => {
     const referenceCells = [
       { x: 2, y: 0 },

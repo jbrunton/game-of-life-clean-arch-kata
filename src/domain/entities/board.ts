@@ -1,4 +1,4 @@
-import { flat, isNonNullish, times } from "remeda";
+import { flat, floor, isNonNullish, times } from "remeda";
 import seedrandom from "seedrandom";
 
 export type Cell = {
@@ -46,30 +46,34 @@ export class Board {
     );
   }
 
+  getNeighbors(x: number, y: number): Cell[] {
+    const cells = times(9, (i) => {
+      const xOffset = (i % 3) - 1;
+      const yOffset = floor(0)(i / 3) - 1;
+
+      return xOffset === 0 && yOffset === 0
+        ? undefined
+        : { x: x + xOffset, y: y + yOffset };
+    });
+
+    return cells.filter(isNonNullish);
+  }
+
   get liveCells(): Cell[] {
     return Array.from(this.liveCells.values());
   }
 
   nextGeneration(): Board {
-    const countNeighbors = (x: number, y: number) => {
-      return [
-        this.isLive(x - 1, y - 1),
-        this.isLive(x, y - 1),
-        this.isLive(x + 1, y - 1),
+    const countNeighbors = (x: number, y: number) =>
+      this.getNeighbors(x, y).filter((c) => this.isLive(c.x, c.y)).length;
 
-        this.isLive(x - 1, y),
-        this.isLive(x + 1, y),
-
-        this.isLive(x - 1, y + 1),
-        this.isLive(x, y + 1),
-        this.isLive(x + 1, y + 1),
-      ].filter((live) => live === true).length;
-    };
+    const isSustainablePopulation = (neighborCount: number) =>
+      [2, 3].includes(neighborCount);
 
     const liveCells = this.mapCells((isLive, { x, y }) => {
       const neighborCount = countNeighbors(x, y);
       if (isLive) {
-        return [2, 3].includes(neighborCount) ? { x, y } : null;
+        return isSustainablePopulation(neighborCount) ? { x, y } : null;
       } else {
         return neighborCount === 3 ? { x, y } : null;
       }
