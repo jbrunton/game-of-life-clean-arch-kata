@@ -18,9 +18,9 @@ describe("Game", () => {
     });
 
     it("validates cell coordinates", () => {
-      expect(() => {
-        new Board(3, 3, [{ x: 3, y: 0 }]);
-      }).toThrowError("Invalid cell coordinates: 3,0");
+      expect(() => new Board(3, 3, [{ x: 3, y: 0 }])).toThrowError(
+        "Invalid cell coordinates: 3,0",
+      );
     });
   });
 

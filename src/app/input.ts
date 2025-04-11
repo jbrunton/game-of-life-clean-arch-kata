@@ -24,7 +24,12 @@ export const getInitialBoard = async (width: number, height: number) => {
   const renderFrame = () => {
     return renderCells(game, (isLive, { x, y }) => {
       const isSelected = x === cursorX && y === cursorY;
-      return isLive ? (isSelected ? "∅" : "●") : isSelected ? "+" : " ";
+
+      if (isLive) {
+        return isSelected ? "∅" : "●";
+      } else {
+        return isSelected ? "+" : " ";
+      }
     });
   };
 
