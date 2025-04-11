@@ -15,8 +15,12 @@ type SeedParams = {
   cellCount: number;
 };
 
-export class Game {
-  readonly gridMap: Map<string, Cell>;
+export class Board {
+  /**
+   * A map of live cells. This could be a set, but it saves parsing strings back into cells.
+   */
+  private readonly gridMap: Map<string, Cell>;
+
   readonly liveCells: Cell[];
 
   constructor(
@@ -47,7 +51,7 @@ export class Game {
     );
   }
 
-  nextGeneration(): Game {
+  nextGeneration(): Board {
     const countNeighbors = (x: number, y: number) => {
       return [
         this.isLive(x - 1, y - 1),
@@ -72,14 +76,14 @@ export class Game {
       }
     });
 
-    return new Game(
+    return new Board(
       this.width,
       this.height,
       flat(liveCells).filter(isNonNullish),
     );
   }
 
-  static seed({ width, height, seed, cellCount }: SeedParams): Game {
+  static seed({ width, height, seed, cellCount }: SeedParams): Board {
     const rng = seedrandom(seed.toString());
 
     const cells = times(cellCount, () => {
@@ -88,7 +92,7 @@ export class Game {
       return { x, y };
     });
 
-    return new Game(width, height, cells);
+    return new Board(width, height, cells);
   }
 }
 

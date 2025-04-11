@@ -1,4 +1,4 @@
-import { Cell, Game } from "entities/game";
+import { Cell, Board } from "entities/board";
 import { db } from "./db";
 
 type SavedGame = {
@@ -9,7 +9,7 @@ type SavedGame = {
 
 export const saveGame = async (
   name: string,
-  game: Game,
+  game: Board,
   description?: string,
 ) => {
   const seedState = JSON.stringify({
@@ -33,10 +33,10 @@ export const listGames = async (): Promise<SavedGame[]> => {
   }));
 };
 
-export const getSavedGame = async (name: string): Promise<Game> => {
+export const getSavedGame = async (name: string): Promise<Board> => {
   const savedGame = await db("saved_games").select("*").where({ name }).first();
 
   const seedState = JSON.parse(savedGame.seedState) as SavedGame["seedState"];
 
-  return new Game(seedState.width, seedState.height, seedState.liveCells);
+  return new Board(seedState.width, seedState.height, seedState.liveCells);
 };

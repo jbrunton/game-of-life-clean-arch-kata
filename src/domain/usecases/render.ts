@@ -1,4 +1,4 @@
-import { Cell, Game } from "entities/game";
+import { Cell, Board } from "entities/board";
 
 type FramesResult = {
   nextFrame: string;
@@ -6,26 +6,26 @@ type FramesResult = {
 };
 
 export const renderCells = (
-  game: Game,
+  game: Board,
   renderCell: (isLive: boolean, cell: Cell) => string,
 ) => {
   const cells = game.mapCells(renderCell);
   return cells.map((row) => row.join(" ")).join("\n");
 };
 
-export function renderFrames(game: Game): { nextFrame: string };
+export function renderFrames(game: Board): { nextFrame: string };
 
 export function renderFrames(
-  game: Game,
-  prevTurn: Game,
+  game: Board,
+  prevTurn: Board,
 ): { nextFrame: string; betweenFrame: string };
 
 export function renderFrames(
-  game: Game,
-  prevTurn?: Game,
+  game: Board,
+  prevTurn?: Board,
 ): { nextFrame: string; betweenFrame?: string };
 
-export function renderFrames(game: Game, prevTurn?: Game): FramesResult {
+export function renderFrames(game: Board, prevTurn?: Board): FramesResult {
   const nextFrame = renderCells(game, (isLive) => (isLive ? "●" : " "));
 
   const betweenFrame = prevTurn

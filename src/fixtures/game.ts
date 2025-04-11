@@ -1,7 +1,7 @@
-import { Game } from "entities/game";
+import { Board } from "entities/board";
 import { flat, isNonNullish, times } from "remeda";
 
-export const asString = (game: Game): string => {
+export const asString = (game: Board): string => {
   return times(game.height, (y) =>
     times(game.width, (x) => {
       return game.isLive(x, y) ? "X" : "O";
@@ -17,7 +17,7 @@ export const dedent = ([str]: TemplateStringsArray): string => {
     .join("\n");
 };
 
-export const fromString = ([game]: TemplateStringsArray): Game => {
+export const fromString = ([game]: TemplateStringsArray): Board => {
   const rows = game
     .split("\n")
     .map((s) => s.trim())
@@ -30,5 +30,5 @@ export const fromString = ([game]: TemplateStringsArray): Game => {
   );
   const liveCells = flat(cells).filter(isNonNullish);
 
-  return new Game(width, height, liveCells);
+  return new Board(width, height, liveCells);
 };
