@@ -1,20 +1,18 @@
-import { Board } from "entities/board";
+import { Board, Cell } from "entities/board";
 import { printFrame } from "./output";
 import readline from "readline";
 import { renderCells } from "usecases/render";
-import { times } from "remeda";
+import { isDeepEqual, times } from "remeda";
 
 export const getInitialBoard = async (width: number, height: number) => {
   let game = new Board(width, height, []);
-  let cursorX = 0;
-  let cursorY = 0;
+  const cursor = { x: 0, y: 0 };
+  const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
 
   const invertSelection = () => {
-    const liveCells = game.isLive({ x: cursorX, y: cursorY })
-      ? game.liveCells.filter(
-          (cell) => cell.x !== cursorX || cell.y !== cursorY,
-        )
-      : [...game.liveCells, { x: cursorX, y: cursorY }];
+    const liveCells = game.isLive(cursor)
+      ? game.liveCells.filter((cell) => !isSelected(cell))
+      : [...game.liveCells, { ...cursor }];
 
     game = new Board(game.width, game.height, liveCells);
   };
@@ -22,13 +20,11 @@ export const getInitialBoard = async (width: number, height: number) => {
   const screenHeight = game.height + 3;
 
   const renderFrame = () => {
-    return renderCells(game, (isLive, { x, y }) => {
-      const isSelected = x === cursorX && y === cursorY;
-
+    return renderCells(game, (isLive, cell) => {
       if (isLive) {
-        return isSelected ? "∅" : "●";
+        return isSelected(cell) ? "∅" : "●";
       } else {
-        return isSelected ? "+" : " ";
+        return isSelected(cell) ? "+" : " ";
       }
     });
   };
@@ -45,7 +41,7 @@ export const getInitialBoard = async (width: number, height: number) => {
       delayMs: 0,
     });
     console.log(times(width, () => "=").join(" "));
-    console.info(`(${cursorX},${cursorY})`);
+    console.info(`(${cursor.x},${cursor.y})`);
   };
 
   printSelection();
@@ -54,13 +50,13 @@ export const getInitialBoard = async (width: number, height: number) => {
     if (keyName === "space") {
       invertSelection();
     } else if (keyName === "left") {
-      cursorX = Math.max(0, cursorX - 1);
+      cursor.x = Math.max(0, cursor.x - 1);
     } else if (keyName === "right") {
-      cursorX = Math.min(game.width - 1, cursorX + 1);
+      cursor.x = Math.min(game.width - 1, cursor.x + 1);
     } else if (keyName === "up") {
-      cursorY = Math.max(0, cursorY - 1);
+      cursor.y = Math.max(0, cursor.y - 1);
     } else if (keyName === "down") {
-      cursorY = Math.min(game.height - 1, cursorY + 1);
+      cursor.y = Math.min(game.height - 1, cursor.y + 1);
     }
 
     printSelection();
