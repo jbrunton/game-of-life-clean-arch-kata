@@ -4,9 +4,12 @@ import readline from "readline";
 import { renderCells } from "usecases/render";
 import { isDeepEqual, times } from "remeda";
 
-export const getInitialBoard = async (width: number, height: number) => {
-  let game = new Board(width, height, []);
-  const cursor = { x: 0, y: 0 };
+export const getInitialBoard = async (
+  width: number,
+  height: number,
+  game = new Board(width, height, []),
+  cursor: Cell = { x: 0, y: 0 },
+): Promise<Board> => {
   const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
 
   const invertSelection = () => {
@@ -14,7 +17,12 @@ export const getInitialBoard = async (width: number, height: number) => {
       ? game.liveCells.filter((cell) => !isSelected(cell))
       : [...game.liveCells, { ...cursor }];
 
-    game = new Board(game.width, game.height, liveCells);
+    return getInitialBoard(
+      width,
+      height,
+      new Board(game.width, game.height, liveCells),
+      cursor,
+    );
   };
 
   const screenHeight = game.height + 3;
@@ -46,42 +54,53 @@ export const getInitialBoard = async (width: number, height: number) => {
 
   printSelection();
 
-  await awaitInputs((keyName) => {
-    if (keyName === "space") {
-      invertSelection();
-    } else if (keyName === "left") {
-      cursor.x = Math.max(0, cursor.x - 1);
-    } else if (keyName === "right") {
-      cursor.x = Math.min(game.width - 1, cursor.x + 1);
-    } else if (keyName === "up") {
-      cursor.y = Math.max(0, cursor.y - 1);
-    } else if (keyName === "down") {
-      cursor.y = Math.min(game.height - 1, cursor.y + 1);
-    }
+  const keyName = await awaitInput();
+  if (keyName === "space") {
+    return invertSelection();
+  } else if (keyName === "left") {
+    return getInitialBoard(width, height, game, {
+      ...cursor,
+      x: Math.max(0, cursor.x - 1),
+    });
+  } else if (keyName === "right") {
+    return getInitialBoard(width, height, game, {
+      ...cursor,
+      x: Math.min(game.width - 1, cursor.x + 1),
+    });
+  } else if (keyName === "up") {
+    return getInitialBoard(width, height, game, {
+      ...cursor,
+      y: Math.max(0, cursor.y - 1),
+    });
+  } else if (keyName === "down") {
+    return getInitialBoard(width, height, game, {
+      ...cursor,
+      y: Math.min(game.height - 1, cursor.y + 1),
+    });
+  } else if (keyName === "return") {
+    return game;
+  }
 
-    printSelection();
-  });
-
-  return game;
+  return getInitialBoard(width, height, game, cursor);
 };
 
-const awaitInputs = async (onKeyPress: (keyName: string) => void) => {
+const awaitInput = async () => {
   readline.emitKeypressEvents(process.stdin);
   process.stdin.setRawMode(true);
 
-  return new Promise<void>((resolve) => {
+  return new Promise<string>((resolve) => {
     process.stdin.on("keypress", (str, key) => {
       if (key.ctrl && key.name === "c") {
         console.info("^C");
         process.exit();
       }
+
       if (key.name === "return") {
         process.stdin.setRawMode(false);
         process.stdin.pause();
-        resolve();
-      } else {
-        onKeyPress(key.name);
       }
+
+      resolve(key.name);
     });
   });
 };
