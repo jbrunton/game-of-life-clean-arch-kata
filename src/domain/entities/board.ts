@@ -1,5 +1,6 @@
 import { flat, floor, isNonNullish, times } from "remeda";
 import seedrandom from "seedrandom";
+import { match } from "ts-pattern";
 
 export type Cell = {
   x: number;
@@ -67,16 +68,30 @@ export class Board {
     const countNeighbors = (x: number, y: number) =>
       this.getNeighbors(x, y).filter((c) => this.isLive(c.x, c.y)).length;
 
-    const isSustainablePopulation = (neighborCount: number) =>
-      [2, 3].includes(neighborCount);
+    type CellContext = {
+      isLive: boolean;
+      neighborCount: number;
+    };
 
-    const liveCells = this.mapCells((isLive, { x, y }) => {
-      const neighborCount = countNeighbors(x, y);
-      if (isLive) {
-        return isSustainablePopulation(neighborCount) ? { x, y } : null;
-      } else {
-        return neighborCount === 3 ? { x, y } : null;
-      }
+    const isUnderpopulated = ({ isLive, neighborCount }: CellContext) =>
+      isLive && neighborCount <= 1;
+    const isOverpopulated = ({ isLive, neighborCount }: CellContext) =>
+      isLive && neighborCount >= 4;
+    const canReproducible = ({ isLive, neighborCount }: CellContext) =>
+      !isLive && neighborCount === 3;
+
+    const isNextGenAlive = (isLive: boolean, cell: Cell) => {
+      const neighborCount = countNeighbors(cell.x, cell.y);
+
+      return match({ isLive, neighborCount })
+        .when(isUnderpopulated, () => false)
+        .when(isOverpopulated, () => false)
+        .when(canReproducible, () => true)
+        .otherwise(() => isLive);
+    };
+
+    const liveCells = this.mapCells((isLive, cell) => {
+      return isNextGenAlive(isLive, cell) ? cell : null;
     });
 
     return new Board(
