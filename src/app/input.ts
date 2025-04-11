@@ -4,31 +4,38 @@ import readline from "readline";
 import { renderCells } from "usecases/render";
 import { isDeepEqual, times } from "remeda";
 
+type SelectionState = {
+  board: Board;
+  cursor: Cell;
+};
+
 export const getInitialBoard = async (
   width: number,
   height: number,
-  game = new Board(width, height, []),
-  cursor: Cell = { x: 0, y: 0 },
+  state: SelectionState = {
+    board: new Board(width, height, []),
+    cursor: { x: 0, y: 0 },
+  },
 ): Promise<Board> => {
+  const { board, cursor } = state;
+
   const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
 
   const invertSelection = () => {
-    const liveCells = game.isLive(cursor)
-      ? game.liveCells.filter((cell) => !isSelected(cell))
-      : [...game.liveCells, { ...cursor }];
+    const liveCells = board.isLive(cursor)
+      ? board.liveCells.filter((cell) => !isSelected(cell))
+      : [...board.liveCells, { ...cursor }];
 
-    return getInitialBoard(
-      width,
-      height,
-      new Board(game.width, game.height, liveCells),
+    return {
+      board: new Board(board.width, board.height, liveCells),
       cursor,
-    );
+    };
   };
 
-  const screenHeight = game.height + 3;
+  const screenHeight = board.height + 3;
 
   const renderFrame = () => {
-    return renderCells(game, (isLive, cell) => {
+    return renderCells(board, (isLive, cell) => {
       if (isLive) {
         return isSelected(cell) ? "∅" : "●";
       } else {
@@ -36,8 +43,6 @@ export const getInitialBoard = async (
       }
     });
   };
-
-  process.stdout.write("\u001Bc");
 
   const printSelection = () => {
     const frame = renderFrame();
@@ -54,34 +59,54 @@ export const getInitialBoard = async (
 
   printSelection();
 
-  const keyName = await awaitInput();
-  if (keyName === "space") {
-    return invertSelection();
-  } else if (keyName === "left") {
-    return getInitialBoard(width, height, game, {
-      ...cursor,
-      x: Math.max(0, cursor.x - 1),
-    });
-  } else if (keyName === "right") {
-    return getInitialBoard(width, height, game, {
-      ...cursor,
-      x: Math.min(game.width - 1, cursor.x + 1),
-    });
-  } else if (keyName === "up") {
-    return getInitialBoard(width, height, game, {
-      ...cursor,
-      y: Math.max(0, cursor.y - 1),
-    });
-  } else if (keyName === "down") {
-    return getInitialBoard(width, height, game, {
-      ...cursor,
-      y: Math.min(game.height - 1, cursor.y + 1),
-    });
-  } else if (keyName === "return") {
-    return game;
+  const getNextState = async () => {
+    const keyName = await awaitInput();
+    if (keyName === "space") {
+      return invertSelection();
+    } else if (keyName === "left") {
+      return {
+        board,
+        cursor: {
+          ...cursor,
+          x: Math.max(0, cursor.x - 1),
+        },
+      };
+    } else if (keyName === "right") {
+      return {
+        board,
+        cursor: {
+          ...cursor,
+          x: Math.min(board.width - 1, cursor.x + 1),
+        },
+      };
+    } else if (keyName === "up") {
+      return {
+        board,
+        cursor: {
+          ...cursor,
+          y: Math.max(0, cursor.y - 1),
+        },
+      };
+    } else if (keyName === "down") {
+      return {
+        board,
+        cursor: {
+          ...cursor,
+          y: Math.min(board.height - 1, cursor.y + 1),
+        },
+      };
+    } else if (keyName === "return") {
+      return "done";
+    }
+  };
+
+  const nextState = await getNextState();
+
+  if (nextState === "done") {
+    return board;
   }
 
-  return getInitialBoard(width, height, game, cursor);
+  return getInitialBoard(width, height, nextState);
 };
 
 const awaitInput = async () => {
