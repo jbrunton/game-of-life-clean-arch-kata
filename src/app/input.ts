@@ -30,16 +30,15 @@ export const getInitialBoard = async (
 
 const getSelection = async (state: SelectionState) => {
   const { board, cursor } = state;
-  const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
 
   const screenHeight = board.height + 3;
 
   const renderBoard = () => {
     return renderCells(board, (isLive, cell) => {
       if (isLive) {
-        return isSelected(cell) ? "∅" : "●";
+        return isSelected(cell, state) ? "∅" : "●";
       } else {
-        return isSelected(cell) ? "+" : " ";
+        return isSelected(cell, state) ? "+" : " ";
       }
     });
   };
@@ -57,17 +56,6 @@ const getSelection = async (state: SelectionState) => {
     console.info(`(${cursor.x},${cursor.y})`);
   };
 
-  const invertSelection = () => {
-    const liveCells = board.isLive(cursor)
-      ? board.liveCells.filter((cell) => !isSelected(cell))
-      : [...board.liveCells, { ...cursor }];
-
-    return {
-      board: new Board(board.width, board.height, liveCells),
-      cursor,
-    };
-  };
-
   printSelection();
 
   const keyName = await awaitNextInput();
@@ -78,13 +66,29 @@ const getSelection = async (state: SelectionState) => {
 
   return getSelection(
     match({ state, keyName })
-      .with({ keyName: "space" }, () => invertSelection())
+      .with({ keyName: "space", state: P.select() }, invertSelection)
       .with({ keyName: "left", state: P.select() }, moveCursor({ x: -1, y: 0 }))
       .with({ keyName: "right", state: P.select() }, moveCursor({ x: 1, y: 0 }))
       .with({ keyName: "up", state: P.select() }, moveCursor({ x: 0, y: -1 }))
       .with({ keyName: "down", state: P.select() }, moveCursor({ x: 0, y: 1 }))
       .exhaustive(),
   );
+};
+
+const isSelected = (cell: Cell, state: SelectionState) =>
+  isDeepEqual(cell, state.cursor);
+
+const invertSelection = (state: SelectionState) => {
+  const { board, cursor } = state;
+
+  const liveCells = board.isLive(cursor)
+    ? board.liveCells.filter((cell) => !isSelected(cell, state))
+    : [...board.liveCells, { ...cursor }];
+
+  return {
+    board: new Board(board.width, board.height, liveCells),
+    cursor,
+  };
 };
 
 const moveCursor =
