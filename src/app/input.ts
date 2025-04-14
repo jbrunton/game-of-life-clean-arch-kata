@@ -3,7 +3,7 @@ import { printFrame } from "./output";
 import readline from "readline";
 import { renderCells } from "usecases/render";
 import { clamp, isDeepEqual, times } from "remeda";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 type SelectionState = {
   board: Board;
@@ -28,7 +28,8 @@ export const getInitialBoard = async (
   return board;
 };
 
-const getSelection = async ({ board, cursor }: SelectionState) => {
+const getSelection = async (state: SelectionState) => {
+  const { board, cursor } = state;
   const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
 
   const screenHeight = board.height + 3;
@@ -67,12 +68,6 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
     };
   };
 
-  const moveCursor = (delta: Cell) => {
-    const x = clamp(cursor.x + delta.x, { min: 0, max: board.width - 1 });
-    const y = clamp(cursor.y + delta.y, { min: 0, max: board.height - 1 });
-    return { board, cursor: { x, y } };
-  };
-
   printSelection();
 
   const keyName = await awaitNextInput();
@@ -82,15 +77,23 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
   }
 
   return getSelection(
-    match(keyName)
-      .with("space", () => invertSelection())
-      .with("left", () => moveCursor({ x: -1, y: 0 }))
-      .with("right", () => moveCursor({ x: 1, y: 0 }))
-      .with("up", () => moveCursor({ x: 0, y: -1 }))
-      .with("down", () => moveCursor({ x: 0, y: 1 }))
+    match({ state, keyName })
+      .with({ keyName: "space" }, () => invertSelection())
+      .with({ keyName: "left", state: P.select() }, moveCursor({ x: -1, y: 0 }))
+      .with({ keyName: "right", state: P.select() }, moveCursor({ x: 1, y: 0 }))
+      .with({ keyName: "up", state: P.select() }, moveCursor({ x: 0, y: -1 }))
+      .with({ keyName: "down", state: P.select() }, moveCursor({ x: 0, y: 1 }))
       .exhaustive(),
   );
 };
+
+const moveCursor =
+  (delta: Cell) =>
+  ({ cursor, board }: SelectionState) => {
+    const x = clamp(cursor.x + delta.x, { min: 0, max: board.width - 1 });
+    const y = clamp(cursor.y + delta.y, { min: 0, max: board.height - 1 });
+    return { board, cursor: { x, y } };
+  };
 
 const inputKeys = ["left", "right", "up", "down", "space", "return"] as const;
 type InputKey = (typeof inputKeys)[number];
