@@ -68,57 +68,54 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
 
   printSelection();
 
-  const getNextState = async () => {
-    const keyName = await awaitNextInput();
-    if (keyName === "space") {
-      return invertSelection();
-    } else if (keyName === "left") {
-      return {
-        board,
-        cursor: {
-          ...cursor,
-          x: Math.max(0, cursor.x - 1),
-        },
-      };
-    } else if (keyName === "right") {
-      return {
-        board,
-        cursor: {
-          ...cursor,
-          x: Math.min(board.width - 1, cursor.x + 1),
-        },
-      };
-    } else if (keyName === "up") {
-      return {
-        board,
-        cursor: {
-          ...cursor,
-          y: Math.max(0, cursor.y - 1),
-        },
-      };
-    } else if (keyName === "down") {
-      return {
-        board,
-        cursor: {
-          ...cursor,
-          y: Math.min(board.height - 1, cursor.y + 1),
-        },
-      };
-    } else if (keyName === "return") {
-      return;
-    } else {
-      // TODO: restrict key values return by awaitInput
-      return getNextState();
-    }
-  };
-
-  const nextState = await getNextState();
-
-  if (!nextState) {
+  // const getNextState = async () => {
+  const keyName = await awaitNextInput();
+  if (keyName === "space") {
+    return getSelection(invertSelection());
+  } else if (keyName === "left") {
+    return getSelection({
+      board,
+      cursor: {
+        ...cursor,
+        x: Math.max(0, cursor.x - 1),
+      },
+    });
+  } else if (keyName === "right") {
+    return getSelection({
+      board,
+      cursor: {
+        ...cursor,
+        x: Math.min(board.width - 1, cursor.x + 1),
+      },
+    });
+  } else if (keyName === "up") {
+    return getSelection({
+      board,
+      cursor: {
+        ...cursor,
+        y: Math.max(0, cursor.y - 1),
+      },
+    });
+  } else if (keyName === "down") {
+    return getSelection({
+      board,
+      cursor: {
+        ...cursor,
+        y: Math.min(board.height - 1, cursor.y + 1),
+      },
+    });
+  } else {
     return board;
   }
+  // };
 
-  return getSelection(nextState);
+  // const nextState = await getNextState();
+
+  // if (!nextState) {
+  //   return board;
+  // }
+
+  // return getSelection(nextState);
 };
 
 const inputKeys = ["left", "right", "up", "down", "space", "return"] as const;
