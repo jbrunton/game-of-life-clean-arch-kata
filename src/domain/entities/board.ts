@@ -62,6 +62,6 @@ export class Board {
   }
 
   get liveCells(): Cell[] {
-    return Array.from(this.liveCellsMap.values());
+    return Array.from(this.liveCells.values());
   }
 }
