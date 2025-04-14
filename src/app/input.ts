@@ -2,7 +2,7 @@ import { Board, Cell } from "entities/board";
 import { printFrame } from "./output";
 import readline from "readline";
 import { renderCells } from "usecases/render";
-import { isDeepEqual, times } from "remeda";
+import { clamp, isDeepEqual, times } from "remeda";
 import { match } from "ts-pattern";
 
 type SelectionState = {
@@ -33,7 +33,7 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
 
   const screenHeight = board.height + 3;
 
-  const renderFrame = () => {
+  const renderBoard = () => {
     return renderCells(board, (isLive, cell) => {
       if (isLive) {
         return isSelected(cell) ? "∅" : "●";
@@ -41,6 +41,19 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
         return isSelected(cell) ? "+" : " ";
       }
     });
+  };
+
+  const printSelection = () => {
+    const frame = renderBoard();
+    printFrame(frame, {
+      clearScreen: true,
+      screenHeight,
+      header:
+        "Select initial cells. Navigate with arrows. Space to flip state. Enter to accept.",
+      delayMs: 0,
+    });
+    console.log(times(board.width, () => "=").join(" "));
+    console.info(`(${cursor.x},${cursor.y})`);
   };
 
   const invertSelection = () => {
@@ -54,17 +67,10 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
     };
   };
 
-  const printSelection = () => {
-    const frame = renderFrame();
-    printFrame(frame, {
-      clearScreen: true,
-      screenHeight,
-      header:
-        "Select initial cells. Navigate with arrows. Space to flip state. Enter to accept.",
-      delayMs: 0,
-    });
-    console.log(times(board.width, () => "=").join(" "));
-    console.info(`(${cursor.x},${cursor.y})`);
+  const moveCursor = (delta: Cell) => {
+    const x = clamp(cursor.x + delta.x, { min: 0, max: board.width - 1 });
+    const y = clamp(cursor.y + delta.y, { min: 0, max: board.height - 1 });
+    return { board, cursor: { x, y } };
   };
 
   printSelection();
@@ -78,34 +84,10 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
   return getSelection(
     match(keyName)
       .with("space", () => invertSelection())
-      .with("left", () => ({
-        board,
-        cursor: {
-          ...cursor,
-          x: Math.max(0, cursor.x - 1),
-        },
-      }))
-      .with("right", () => ({
-        board,
-        cursor: {
-          ...cursor,
-          x: Math.min(board.width - 1, cursor.x + 1),
-        },
-      }))
-      .with("up", () => ({
-        board,
-        cursor: {
-          ...cursor,
-          y: Math.max(0, cursor.y - 1),
-        },
-      }))
-      .with("down", () => ({
-        board,
-        cursor: {
-          ...cursor,
-          y: Math.min(board.height - 1, cursor.y + 1),
-        },
-      }))
+      .with("left", () => moveCursor({ x: -1, y: 0 }))
+      .with("right", () => moveCursor({ x: 1, y: 0 }))
+      .with("up", () => moveCursor({ x: 0, y: -1 }))
+      .with("down", () => moveCursor({ x: 0, y: 1 }))
       .exhaustive(),
   );
 };
