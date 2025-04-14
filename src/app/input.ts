@@ -12,13 +12,22 @@ type SelectionState = {
 export const getInitialBoard = async (
   width: number,
   height: number,
-  state: SelectionState = {
+): Promise<Board> => {
+  readline.emitKeypressEvents(process.stdin);
+  process.stdin.setRawMode(true);
+
+  const board = await getNextBoard({
     board: new Board(width, height, []),
     cursor: { x: 0, y: 0 },
-  },
-): Promise<Board> => {
-  const { board, cursor } = state;
+  });
 
+  process.stdin.setRawMode(false);
+  process.stdin.pause();
+
+  return board;
+};
+
+const getNextBoard = async ({ board, cursor }: SelectionState) => {
   const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
 
   const invertSelection = () => {
@@ -53,7 +62,7 @@ export const getInitialBoard = async (
         "Select initial cells. Navigate with arrows. Space to flip state. Enter to accept.",
       delayMs: 0,
     });
-    console.log(times(width, () => "=").join(" "));
+    console.log(times(board.width, () => "=").join(" "));
     console.info(`(${cursor.x},${cursor.y})`);
   };
 
@@ -97,6 +106,9 @@ export const getInitialBoard = async (
       };
     } else if (keyName === "return") {
       return "done";
+    } else {
+      // TODO: restrict key values return by awaitInput
+      return getNextState();
     }
   };
 
@@ -106,13 +118,10 @@ export const getInitialBoard = async (
     return board;
   }
 
-  return getInitialBoard(width, height, nextState);
+  return getNextBoard(nextState);
 };
 
 const awaitInput = async () => {
-  readline.emitKeypressEvents(process.stdin);
-  process.stdin.setRawMode(true);
-
   return new Promise<string>((resolve) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = (_str: any, key: any) => {
@@ -121,7 +130,6 @@ const awaitInput = async () => {
         process.exit();
       }
 
-      process.stdin.setRawMode(false);
       process.stdin.off("keypress", handler);
 
       resolve(key.name);
