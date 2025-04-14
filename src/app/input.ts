@@ -114,18 +114,19 @@ const awaitInput = async () => {
   process.stdin.setRawMode(true);
 
   return new Promise<string>((resolve) => {
-    process.stdin.on("keypress", (str, key) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handler = (_str: any, key: any) => {
       if (key.ctrl && key.name === "c") {
         console.info("^C");
         process.exit();
       }
 
-      if (key.name === "return") {
-        process.stdin.setRawMode(false);
-        process.stdin.pause();
-      }
+      process.stdin.setRawMode(false);
+      process.stdin.off("keypress", handler);
 
       resolve(key.name);
-    });
+    };
+
+    process.stdin.on("keypress", handler);
   });
 };
