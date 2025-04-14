@@ -3,6 +3,7 @@ import { printFrame } from "./output";
 import readline from "readline";
 import { renderCells } from "usecases/render";
 import { isDeepEqual, times } from "remeda";
+import { match } from "ts-pattern";
 
 type SelectionState = {
   board: Board;
@@ -68,54 +69,45 @@ const getSelection = async ({ board, cursor }: SelectionState) => {
 
   printSelection();
 
-  // const getNextState = async () => {
   const keyName = await awaitNextInput();
-  if (keyName === "space") {
-    return getSelection(invertSelection());
-  } else if (keyName === "left") {
-    return getSelection({
-      board,
-      cursor: {
-        ...cursor,
-        x: Math.max(0, cursor.x - 1),
-      },
-    });
-  } else if (keyName === "right") {
-    return getSelection({
-      board,
-      cursor: {
-        ...cursor,
-        x: Math.min(board.width - 1, cursor.x + 1),
-      },
-    });
-  } else if (keyName === "up") {
-    return getSelection({
-      board,
-      cursor: {
-        ...cursor,
-        y: Math.max(0, cursor.y - 1),
-      },
-    });
-  } else if (keyName === "down") {
-    return getSelection({
-      board,
-      cursor: {
-        ...cursor,
-        y: Math.min(board.height - 1, cursor.y + 1),
-      },
-    });
-  } else {
+
+  if (keyName === "return") {
     return board;
   }
-  // };
 
-  // const nextState = await getNextState();
-
-  // if (!nextState) {
-  //   return board;
-  // }
-
-  // return getSelection(nextState);
+  return getSelection(
+    match(keyName)
+      .with("space", () => invertSelection())
+      .with("left", () => ({
+        board,
+        cursor: {
+          ...cursor,
+          x: Math.max(0, cursor.x - 1),
+        },
+      }))
+      .with("right", () => ({
+        board,
+        cursor: {
+          ...cursor,
+          x: Math.min(board.width - 1, cursor.x + 1),
+        },
+      }))
+      .with("up", () => ({
+        board,
+        cursor: {
+          ...cursor,
+          y: Math.max(0, cursor.y - 1),
+        },
+      }))
+      .with("down", () => ({
+        board,
+        cursor: {
+          ...cursor,
+          y: Math.min(board.height - 1, cursor.y + 1),
+        },
+      }))
+      .exhaustive(),
+  );
 };
 
 const inputKeys = ["left", "right", "up", "down", "space", "return"] as const;
