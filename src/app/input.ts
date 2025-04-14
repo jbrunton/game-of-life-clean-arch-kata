@@ -16,7 +16,7 @@ export const getInitialBoard = async (
   readline.emitKeypressEvents(process.stdin);
   process.stdin.setRawMode(true);
 
-  const board = await getNextBoard({
+  const board = await getSelection({
     board: new Board(width, height, []),
     cursor: { x: 0, y: 0 },
   });
@@ -27,19 +27,8 @@ export const getInitialBoard = async (
   return board;
 };
 
-const getNextBoard = async ({ board, cursor }: SelectionState) => {
+const getSelection = async ({ board, cursor }: SelectionState) => {
   const isSelected = (cell: Cell) => isDeepEqual(cell, cursor);
-
-  const invertSelection = () => {
-    const liveCells = board.isLive(cursor)
-      ? board.liveCells.filter((cell) => !isSelected(cell))
-      : [...board.liveCells, { ...cursor }];
-
-    return {
-      board: new Board(board.width, board.height, liveCells),
-      cursor,
-    };
-  };
 
   const screenHeight = board.height + 3;
 
@@ -51,6 +40,17 @@ const getNextBoard = async ({ board, cursor }: SelectionState) => {
         return isSelected(cell) ? "+" : " ";
       }
     });
+  };
+
+  const invertSelection = () => {
+    const liveCells = board.isLive(cursor)
+      ? board.liveCells.filter((cell) => !isSelected(cell))
+      : [...board.liveCells, { ...cursor }];
+
+    return {
+      board: new Board(board.width, board.height, liveCells),
+      cursor,
+    };
   };
 
   const printSelection = () => {
@@ -69,7 +69,7 @@ const getNextBoard = async ({ board, cursor }: SelectionState) => {
   printSelection();
 
   const getNextState = async () => {
-    const keyName = await awaitInput();
+    const keyName = await awaitNextInput();
     if (keyName === "space") {
       return invertSelection();
     } else if (keyName === "left") {
@@ -105,7 +105,7 @@ const getNextBoard = async ({ board, cursor }: SelectionState) => {
         },
       };
     } else if (keyName === "return") {
-      return "done";
+      return;
     } else {
       // TODO: restrict key values return by awaitInput
       return getNextState();
@@ -114,15 +114,18 @@ const getNextBoard = async ({ board, cursor }: SelectionState) => {
 
   const nextState = await getNextState();
 
-  if (nextState === "done") {
+  if (!nextState) {
     return board;
   }
 
-  return getNextBoard(nextState);
+  return getSelection(nextState);
 };
 
-const awaitInput = async () => {
-  return new Promise<string>((resolve) => {
+const inputKeys = ["left", "right", "up", "down", "space", "return"] as const;
+type InputKey = (typeof inputKeys)[number];
+
+const awaitNextInput = async (): Promise<InputKey> => {
+  return new Promise<InputKey>((resolve) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = (_str: any, key: any) => {
       if (key.ctrl && key.name === "c") {
@@ -130,9 +133,10 @@ const awaitInput = async () => {
         process.exit();
       }
 
-      process.stdin.off("keypress", handler);
-
-      resolve(key.name);
+      if (inputKeys.includes(key.name)) {
+        process.stdin.off("keypress", handler);
+        resolve(key.name);
+      }
     };
 
     process.stdin.on("keypress", handler);
