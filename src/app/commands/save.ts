@@ -1,10 +1,10 @@
 import { saveGame } from "data/save";
 import { Argv } from "yargs";
 import { StrictCommandType } from "./types";
-import { buildSeedGame, seedGameBuilder } from "./common";
+import { buildInitialState, initialStateBuilder } from "./common";
 
 const builder = (yargs: Argv) =>
-  seedGameBuilder(yargs).options({
+  initialStateBuilder(yargs).options({
     description: {
       type: "string",
       alias: "d",
@@ -23,7 +23,7 @@ export const saveCommand: StrictCommandType<typeof builder> = {
   describe: "save a game to replay",
   builder,
   handler: async (args) => {
-    const game = await buildSeedGame(args);
+    const game = await buildInitialState(args);
 
     await saveGame(args.name, game, args.description);
   },

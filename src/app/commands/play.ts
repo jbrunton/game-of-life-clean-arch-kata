@@ -2,11 +2,11 @@ import { getSavedGame } from "data/save";
 import { playGame } from "app/play";
 import { Argv } from "yargs";
 import { StrictCommandType } from "./types";
-import { buildSeedGame, seedGameBuilder } from "./common";
+import { buildInitialState, initialStateBuilder } from "./common";
 import { pick } from "remeda";
 
 const builder = (yargs: Argv) =>
-  seedGameBuilder(yargs).options({
+  initialStateBuilder(yargs).options({
     description: {
       type: "string",
       alias: "d",
@@ -56,7 +56,7 @@ export const playCommand: StrictCommandType<typeof builder> = {
   handler: async (args) => {
     const game = args.name
       ? await getSavedGame(args.name)
-      : await buildSeedGame(args);
+      : await buildInitialState(args);
 
     await playGame(game, {
       delayMs: args.delay,
