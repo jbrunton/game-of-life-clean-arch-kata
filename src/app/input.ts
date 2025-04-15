@@ -10,10 +10,16 @@ type SelectionState = {
   cursor: Cell;
 };
 
+/**
+ * Lets the user configure the initial state of the board interatively.
+ */
 export const getInitialBoard = async (
   width: number,
   height: number,
 ): Promise<Board> => {
+  // clear the terminal
+  process.stdout.write("\u001Bc");
+
   readline.emitKeypressEvents(process.stdin);
   process.stdin.setRawMode(true);
 

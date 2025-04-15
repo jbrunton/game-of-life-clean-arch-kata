@@ -49,5 +49,5 @@ export const buildSeedGame = async ({
   // clear the terminal
   process.stdout.write("\u001Bc");
 
-  return await getInitialBoard(width, height);
+  return getInitialBoard(width, height);
 };
