@@ -13,7 +13,7 @@ type SelectionState = {
 /**
  * Lets the user configure the initial state of the board interatively.
  */
-export const getInitialBoard = async (
+export const selectInitialState = async (
   width: number,
   height: number,
 ): Promise<Board> => {
